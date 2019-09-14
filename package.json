@@ -1,0 +1,17 @@
+{
+  "name": "logging",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "tsc": "tsc",
+    "start": "tsc && node build/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikita Volobuev",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^12.7.5",
+    "typescript": "^3.6.3"
+  }
+}
