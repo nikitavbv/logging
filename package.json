@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nikita Volobuev",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@types/node": "^12.7.5",
     "typescript": "^3.6.3"
