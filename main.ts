@@ -1,3 +1,5 @@
+import config from './src/config';
+
 import http = require('http');
 
 http.createServer((_: http.IncomingMessage, res: http.ServerResponse) => {
@@ -5,4 +7,4 @@ http.createServer((_: http.IncomingMessage, res: http.ServerResponse) => {
         'Content-Type': 'text/plain'
     });
     res.end('hello world!');
-}).listen(8000);
+}).listen(config.port);
