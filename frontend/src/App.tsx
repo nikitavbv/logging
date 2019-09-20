@@ -1,11 +1,12 @@
 import React from 'react';
-import { HashRouter, Route } from 'react-router';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
+import Home from './Home';
 import Signin from './Signin';
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
+    <Router>
         <div className="app">
           <header className="header">
             header
@@ -15,7 +16,7 @@ const App: React.FC = () => {
             <Route path="/signin" component={Signin}/>
           </div>
         </div>
-    </HashRouter>
+    </Router>
   );
 }
 
