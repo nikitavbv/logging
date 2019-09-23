@@ -9,10 +9,10 @@ const App: React.FC = () => {
     <Router>
         <div className="app">
           <header className="header">
-            header
+            header  
           </header>
           <div className="content">
-            <Route path="/" component={Home}/>
+            <Route path="/" exact component={Home}/>
             <Route path="/auth" component={Auth}/>
           </div>
         </div>
