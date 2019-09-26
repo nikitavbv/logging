@@ -4,6 +4,14 @@ import './App.css';
 import Home from './Home';
 import Auth from './Auth';
 
+const loadGapi = () => new Promise((resolve, _) => {
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/platform.js';
+    script.async = true;
+    document.body.appendChild(script);
+    script.onload = resolve;
+});
+
 const App: React.FC = () => {
   return (
     <Router>
