@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
 import Home from './Home';
-import Auth from './Auth';
+import { Auth } from './Auth';
 
-const loadGapi = () => new Promise((resolve, _) => {
+const loadGapi = () => new Promise<void>((resolve, _) => {
     const script = document.createElement('script');
     script.src = 'https://apis.google.com/js/platform.js';
     script.async = true;
     document.body.appendChild(script);
-    script.onload = resolve;
+    script.onload = () => resolve();
 });
 
 const App: React.FC = () => {
@@ -21,7 +21,7 @@ const App: React.FC = () => {
           </header>
           <div className="content">
             <Route path="/" exact component={Home}/>
-            <Route path="/auth" component={Auth}/>
+            <Route path="/auth" render={() => <Auth loadGapi={loadGapi} />}/>
           </div>
         </div>
     </Router>

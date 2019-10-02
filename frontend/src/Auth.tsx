@@ -1,23 +1,15 @@
-import React from "react";
-import { GoogleLogin } from 'react-google-login';
+import React, { FunctionComponent } from "react";
 
-
-const responseGoogle = (response: any) => {
-    console.log(response);
+type AuthProps = {
+    loadGapi: () => Promise<void>
 }
 
-const Signin: React.FC = () => {
+export const Auth: FunctionComponent<AuthProps> = ({ loadGapi }) => {
+    loadGapi();
+
     return (
         <div>
-            <GoogleLogin
-                clientId=""
-                buttonText="Login"
-                onSuccess={responseGoogle}
-                onFailure={responseGoogle}
-                cookiePolicy={'single_host_origin'}
-            />
+            auth
         </div>
-    );
+    )
 };
-
-export default Signin;
