@@ -2,15 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
 import Home from './Home';
-import { Auth } from './Auth';
-
-const loadGapi = () => new Promise<void>((resolve, _) => {
-    const script = document.createElement('script');
-    script.src = 'https://apis.google.com/js/platform.js';
-    script.async = true;
-    document.body.appendChild(script);
-    script.onload = () => resolve();
-});
+import { Auth, loadGapi } from './auth';
 
 const App: React.FC = () => {
   return (
