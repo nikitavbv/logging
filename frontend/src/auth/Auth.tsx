@@ -4,14 +4,13 @@ type AuthProps = {
     loadGapi: () => Promise<void>
 }
 
-function updateSigninStatus(status: boolean) {
+function updateAuthStatus(status: boolean) {
     console.log('updateSigninStatus:', status);
 }
 
-function setSigninStatus(user: gapi.auth2.GoogleUser) {
+function setAuthStatus(user: gapi.auth2.GoogleUser) {
     const isAuthorized = user.hasGrantedScopes('https://www.googleapis.com/auth/userinfo.email');
     if (isAuthorized) {
-        console.log('authorized');
     }
 }
 
@@ -21,9 +20,9 @@ export class Auth extends React.Component<AuthProps> {
 
         props.loadGapi().then(() => {
             const googleAuth = gapi.auth2.getAuthInstance();
-            googleAuth.isSignedIn.listen(updateSigninStatus);
+            googleAuth.isSignedIn.listen(updateAuthStatus);
             const user = googleAuth.currentUser.get();
-            setSigninStatus(user);
+            setAuthStatus(user);
         });
     }
 
