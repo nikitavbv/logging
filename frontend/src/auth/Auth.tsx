@@ -4,10 +4,6 @@ type AuthProps = {
     loadGapi: () => Promise<void>
 }
 
-function updateAuthStatus(status: boolean) {
-    console.log('updateSigninStatus:', status);
-}
-
 class AuthState {
     authorized?: boolean = undefined;
 }
@@ -22,15 +18,10 @@ export class Auth extends React.Component<AuthProps> {
 
         props.loadGapi().then(() => {
             const googleAuth = gapi.auth2.getAuthInstance();
-            googleAuth.isSignedIn.listen(updateAuthStatus);
-            const user = googleAuth.currentUser.get();
-            
-            console.log(this.state);
-
-            this.setState({
-                ...this.state,
-                authorized: user.hasGrantedScopes('https://www.googleapis.com/auth/userinfo.email')
-            });
+            googleAuth.isSignedIn.listen(
+                this.updateAuthStatus.bind(this, googleAuth)
+            );
+            this.updateAuthStatus(googleAuth);
         });
     }
 
@@ -43,6 +34,23 @@ export class Auth extends React.Component<AuthProps> {
             return (<div>already authorized</div>);
         }
 
-        return (<div>not authorized yet</div>);
+        return (
+            <div>
+                <button onClick={this.signIn}>Sign In</button>
+            </div>
+        );
+    }
+
+    signIn() {
+        const googleAuth = gapi.auth2.getAuthInstance();
+        googleAuth.signIn();
+    }
+
+    updateAuthStatus(googleAuth: gapi.auth2.GoogleAuth) {
+        const user = googleAuth.currentUser.get();
+        this.setState({
+            ...this.state,
+            authorized: user.hasGrantedScopes('https://www.googleapis.com/auth/userinfo.email')
+        })
     }
 }
