@@ -48,9 +48,29 @@ export class Auth extends React.Component<AuthProps> {
 
     updateAuthStatus(googleAuth: gapi.auth2.GoogleAuth) {
         const user = googleAuth.currentUser.get();
+
+        const authorized = user.hasGrantedScopes('https://www.googleapis.com/auth/userinfo.email');
+
         this.setState({
             ...this.state,
-            authorized: user.hasGrantedScopes('https://www.googleapis.com/auth/userinfo.email')
+            authorized
         })
+
+        if (authorized) {
+            this.sendTokenToBackend(user.getAuthResponse().access_token);
+        }
+    }
+
+    sendTokenToBackend(access_token: string) {
+        fetch('/api/v1/auth', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                access_token
+            })
+        }).then(console.log.bind('auth api response'));
     }
 }
