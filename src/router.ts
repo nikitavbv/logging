@@ -9,13 +9,22 @@ export enum HttpStatusCode {
     // ...
 }
 
-export type HttpResponse<T> = {
-    body: T,
+export enum HttpMethod {
+    GET,
+    POST,
+    PUT,
+    DELETE,
+}
+
+export type HttpResponse = {
+    body: {},
     status_code: HttpStatusCode
 };
 
-export type RouteHandler<T> = (req: HttpRequest) => HttpResponse<T>;
+export type RouteHandler = (req: HttpRequest) => HttpResponse;
 
-export type RouteSet<T> = {
-    [key: string]: RouteHandler<T>
+export type RoutingRules = {
+    [path: string]: {
+        [method: string]: RouteHandler
+    }
 }
