@@ -1,5 +1,6 @@
 export type HttpRequest = {
-    url: string
+    url: string,
+    method: HttpMethod
 };
 
 export enum HttpMethod {
@@ -12,6 +13,7 @@ export enum HttpMethod {
 export type RouteHandler = (req: HttpRequest) => Promise<{}>;
 
 export type Router = {
+    route: (req: HttpRequest) => Promise<{}>;
     get: (path: string, handler: RouteHandler) => Router;
     post: (path: string, handler: RouteHandler) => Router;
     put: (path: string, handler: RouteHandler) => Router;
@@ -33,6 +35,11 @@ export function router(): Router {
     };
 
     const router: Router = {
+        route: (req: HttpRequest): Promise<{}> => {
+            const handler = routeHandlerFor(req);
+            return handler(req);
+        },
+
         get: (path: string, handler: RouteHandler): Router =>
             addRouteHandler(path, HttpMethod.GET, handler),
 
