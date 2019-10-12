@@ -20,6 +20,16 @@ export type Router = {
     delete: (path: string, handler: RouteHandler) => Router;
 }
 
+export function filterMethod(method: HttpMethod, handler: RouteHandler): RouteHandler => {
+    return async (req: HttpRequest) => {
+        if (req.method !== method) {
+            return;
+        }
+
+        return await handler(req);
+    };
+}
+
 export function router(): Router {
     const routingRules = new Map<string, Map<HttpMethod, RouteHandler>>();
 
