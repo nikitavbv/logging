@@ -23,4 +23,16 @@ export class Stream<T> {
         });
         return this;
     }
+
+    filter(f: (arg: T) => boolean): Stream<T> {
+        const stream = new Stream<T>();
+
+        this.listeners.push((arg: T) => {
+            if (f(arg)) {
+                stream.push(arg);
+            }
+        });
+
+        return stream;
+    }
 }
