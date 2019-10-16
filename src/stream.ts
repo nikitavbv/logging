@@ -35,4 +35,21 @@ export class Stream<T> {
 
         return stream;
     }
+
+    reduce(f: (a: T, b: T) => T, initial: T = undefined): StreamValue<T> {
+        const v = new StreamValue(initial);
+        let firstElement = true;
+
+        this.listeners.push((arg: T) => {
+            if (initial === undefined && firstElement) {
+                v.update(arg);
+                firstElement = false;
+                return;
+            }
+
+            v.update(f(v.get(), arg));
+        });
+
+        return v;
+    }
 }
