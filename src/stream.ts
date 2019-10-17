@@ -37,7 +37,7 @@ export class Stream<T> {
     }
 
     reduce(f: (a: T, b: T) => T, initial: T = undefined): StreamValue<T> {
-        const v = new StreamValue(initial);
+        const v = new StreamValue<T>(initial);
         let firstElement = true;
 
         this.listeners.push((arg: T) => {
