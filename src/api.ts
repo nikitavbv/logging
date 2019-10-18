@@ -65,3 +65,6 @@ export function router(): Router {
 
     return router
 }
+
+export class HttpStream extends Stream<HttpRequest> {
+}
