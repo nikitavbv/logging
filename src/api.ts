@@ -67,4 +67,8 @@ export function router(): Router {
 }
 
 export class HttpStream extends Stream<HttpRequest> {
+
+    withMethod(method: HttpMethod): Stream<HttpRequest> {
+        return this.filter(req => req.method === method);
+    }
 }
