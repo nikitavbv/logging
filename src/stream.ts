@@ -1,3 +1,5 @@
+import { StreamValue } from './stream_value';
+
 export class Stream<T> {
     listeners: ((arg: T) => void)[] = [];
 
@@ -36,7 +38,7 @@ export class Stream<T> {
         return stream;
     }
 
-    reduce(f: (a: T, b: T) => T, initial: T = undefined): StreamValue<T> {
+    reduce(f: (a: T, b: T) => T, initial?: T): StreamValue<T> {
         const v = new StreamValue<T>(initial);
         let firstElement = true;
 
