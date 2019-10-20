@@ -1,4 +1,5 @@
 import { StreamValue } from './stream_value';
+import { AssertionError } from 'assert';
 
 export class Stream<T> {
     listeners: ((arg: T) => void)[] = [];
@@ -9,12 +10,10 @@ export class Stream<T> {
         });
     }
 
-    map<E>(f: (arg: T) => E): Stream<E> {
-        const stream = new Stream<E>();
+    map<E>(f: (arg: T) => E, target_stream?: Stream<E>): Stream<E> {
+        const stream = target_stream || new Stream<E>();
     
-        this.listeners.push((arg: T) => {
-            stream.push(f(arg));
-        });
+        this.listeners.push((arg: T) => stream.push(f(arg)));
 
         return stream;
     }
@@ -26,8 +25,8 @@ export class Stream<T> {
         return this;
     }
 
-    filter(f: (arg: T) => boolean): Stream<T> {
-        const stream = new Stream<T>();
+    filter(f: (arg: T) => boolean, target_stream?: Stream<T>): Stream<T> {
+        const stream = target_stream || new Stream<T>();
 
         this.listeners.push((arg: T) => {
             if (f(arg)) {
@@ -38,18 +37,25 @@ export class Stream<T> {
         return stream;
     }
 
-    reduce(f: (a: T, b: T) => T, initial?: T): StreamValue<T> {
-        const v = new StreamValue<T>(initial);
-        let firstElement = true;
+    reduce(f: (a: T, b: T) => T, initial?: T, target_value?: StreamValue<T>): StreamValue<T> {
+        const v = target_value || new StreamValue<T>(initial);
+        let first_element = true;
 
         this.listeners.push((arg: T) => {
-            if (initial === undefined && firstElement) {
+            if (initial === undefined && first_element) {
                 v.update(arg);
-                firstElement = false;
+                first_element = false;
                 return;
             }
 
-            v.update(f(v.get(), arg));
+            const current = v.get();
+            if (current === undefined) {
+                throw new AssertionError({ 
+                    message: 'reduce value cannot be null at non-first run'
+                });
+            }
+            
+            v.update(f(current, arg));
         });
 
         return v;

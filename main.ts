@@ -1,10 +1,13 @@
+import http from 'http';
+
 import config from './src/config';
+import { HttpStream, HttpMethod } from './src/api';
 
-import http = require('http');
+const stream = new HttpStream();
 
-http.createServer((_: http.IncomingMessage, res: http.ServerResponse) => {
-    res.writeHead(200, {
-        'Content-Type': 'text/plain'
-    });
-    res.end('hello world!');
-}).listen(config.port);
+http.createServer(stream.server.bind(stream)).listen(config.port);
+
+stream.forEach(console.log); // log each request
+
+stream.method(HttpMethod.GET).url('/').forEach(req => req.ok('hello'));
+stream.method(HttpMethod.GET).url('/home').forEach(req => req.ok('home'));

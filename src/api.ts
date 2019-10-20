@@ -1,7 +1,19 @@
-export type HttpRequest = {
-    url: string,
-    method: HttpMethod
+import http from 'http';
+
+import { Stream } from './stream';
+
+export class HttpRequest {
+
+    constructor(
+        public url: string, 
+        public method: HttpMethod,
+        private callback: (status: HttpStatus, body: HttpBody) => void,
+    ) {}
+
+    ok = (body: HttpBody) => this.callback(HttpStatus.OK, body);
 };
+
+export type HttpBody = any;
 
 export enum HttpMethod {
     GET,
@@ -10,65 +22,83 @@ export enum HttpMethod {
     DELETE,
 }
 
-export type RouteHandler = (req: HttpRequest) => Promise<{}>;
-
-export type Router = {
-    route: (req: HttpRequest) => Promise<{}>;
-    get: (path: string, handler: RouteHandler) => Router;
-    post: (path: string, handler: RouteHandler) => Router;
-    put: (path: string, handler: RouteHandler) => Router;
-    delete: (path: string, handler: RouteHandler) => Router;
-}
-
-export function filterMethod(method: HttpMethod, handler: RouteHandler): RouteHandler => {
-    return async (req: HttpRequest) => {
-        if (req.method !== method) {
-            return;
-        }
-
-        return await handler(req);
-    };
-}
-
-export function router(): Router {
-    const routingRules = new Map<string, Map<HttpMethod, RouteHandler>>();
-
-    const addRouteHandler = (
-        path: string, 
-        method: HttpMethod, 
-        handler: RouteHandler
-    ): Router => {
-        const prevRules = routingRules.get(path) ||
-            new Map<HttpMethod, RouteHandler>();
-        prevRules.set(method, handler);
-        return router;
-    };
-
-    const router: Router = {
-        route: (req: HttpRequest): Promise<{}> => {
-            const handler = routeHandlerFor(req);
-            return handler(req);
-        },
-
-        get: (path: string, handler: RouteHandler): Router =>
-            addRouteHandler(path, HttpMethod.GET, handler),
-
-        post: (path: string, handler: RouteHandler): Router =>
-            addRouteHandler(path, HttpMethod.POST, handler),
-        
-        put: (path: string, handler: RouteHandler): Router =>
-            addRouteHandler(path, HttpMethod.PUT, handler),
-
-        delete: (path: string, handler: RouteHandler): Router =>
-            addRouteHandler(path, HttpMethod.DELETE, handler)
-    };
-
-    return router
+export enum HttpStatus {
+    OK,
 }
 
 export class HttpStream extends Stream<HttpRequest> {
 
-    withMethod(method: HttpMethod): Stream<HttpRequest> {
-        return this.filter(req => req.method === method);
+    server(req: http.IncomingMessage, res: http.ServerResponse) {
+        const request = to_http_request(req, res);
+        if (request === undefined) {
+            res.writeHead(400, {
+                'Content-Type': 'text/plain' 
+            });
+            res.end('invalid request.');
+            return;
+        }
+
+        this.push(request);
     }
+
+    method(method: HttpMethod): HttpStream {
+        return this.filter(req => req.method === method, new HttpStream()) as HttpStream;
+    }
+
+    url(url: string): HttpStream {
+        return this.filter(req => this.compare_url(url, req.url), new HttpStream()) as HttpStream;
+    }
+
+    private compare_url(rule: string, actual: string) {
+        if (actual === '') {
+            actual = '/';
+        }
+
+        return rule === actual;
+    }
+}
+
+function get_method(name: string): HttpMethod | undefined {
+    switch (name.toLowerCase()) {
+        case 'get':
+            return HttpMethod.GET;
+        case 'post':
+            return HttpMethod.POST;
+        case 'put':
+            return HttpMethod.PUT;
+        case 'delete':
+            return HttpMethod.DELETE;
+        default:
+            return undefined;
+    }
+}
+
+function http_status_to_code(status: HttpStatus): number {
+    switch (status) {
+        case HttpStatus.OK:
+            return 200;
+    }
+}
+
+export const to_http_request = (req: http.IncomingMessage, res: http.ServerResponse): HttpRequest | undefined => {
+    if (req.method === undefined) {
+        return undefined;
+    }
+
+    const method = get_method(req.method);
+    if (method === undefined) {
+        return undefined;
+    }
+
+    const path = req.url;
+    if (path === undefined) {
+        return undefined;
+    }
+
+    const callback = (status: HttpStatus, body: HttpBody) => {
+        res.writeHead(http_status_to_code(status));
+        res.end(body);
+    };
+
+    return new HttpRequest(path, method, callback);
 }

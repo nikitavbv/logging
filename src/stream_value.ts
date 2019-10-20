@@ -1,11 +1,11 @@
 export class StreamValue<T> {
-    constructor(private value: T = undefiend) {}
+    constructor(private value?: T) {}
 
     isPresent(): boolean {
         return this.value !== undefined;
     }
 
-    get(): T {
+    get(): T | undefined {
         return this.value;
     }
 
