@@ -1,4 +1,6 @@
 import http from 'http';
+import path from 'path';
+import fs from 'fs';
 
 import { Stream } from './stream';
 
@@ -7,10 +9,12 @@ export class HttpRequest {
     constructor(
         public url: string, 
         public method: HttpMethod,
-        private callback: (status: HttpStatus, body: HttpBody) => void,
+        public callback: (status: HttpStatus, body: HttpBody) => void,
     ) {}
 
     ok = (body: HttpBody) => this.callback(HttpStatus.OK, body);
+    not_found = (body: HttpBody) => this.callback(HttpStatus.NOT_FOUND, body);
+    internal_error = () => this.callback(HttpStatus.INTERNAL_ERROR, 'internal server error');
 };
 
 export type HttpBody = any;
@@ -24,6 +28,8 @@ export enum HttpMethod {
 
 export enum HttpStatus {
     OK,
+    NOT_FOUND,
+    INTERNAL_ERROR,
 }
 
 export class HttpStream extends Stream<HttpRequest> {
@@ -77,6 +83,10 @@ function http_status_to_code(status: HttpStatus): number {
     switch (status) {
         case HttpStatus.OK:
             return 200;
+        case HttpStatus.NOT_FOUND:
+            return 404;
+        case HttpStatus.INTERNAL_ERROR:
+            return 500;
     }
 }
 
@@ -102,3 +112,45 @@ export const to_http_request = (req: http.IncomingMessage, res: http.ServerRespo
 
     return new HttpRequest(path, method, callback);
 }
+
+export const url_starting_with = (prefix: string) => (req: HttpRequest): boolean =>
+    req.url.startsWith(prefix);
+
+export const url_not_starting_with = (prefix: string) => (req: HttpRequest): boolean =>
+    !req.url.startsWith(prefix);
+
+export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequest =>
+    new HttpRequest(req.url.replace(prefix, ''), req.method, req.callback);
+
+function serve_file(req: HttpRequest, file_path: string) {
+    fs.exists(file_path, exists => {
+        if (!exists) {
+            req.not_found(req.url);
+            return;
+        }
+
+        fs.readFile(file_path, 'utf8', (err, data) => {
+            if (err) {
+                console.error('failed to read static file:', err);
+                req.internal_error();
+                return;
+            }
+
+            req.ok(data);
+        });
+    });
+}
+
+export const serve_static = (static_resources_path: string) => (req: HttpRequest) => {
+    const dir = static_resources_path.endsWith('/') ? static_resources_path : `${static_resources_path}/`;
+    
+    const url = req.url.endsWith('/') ? `${req.url}index.html` : req.url;
+
+    const file_path = path.join(dir, url);
+    
+    if (!file_path.startsWith(dir)) {
+        return serve_file(req, path.join(dir, 'index.html'));
+    }
+
+    return serve_file(req, file_path);
+};
