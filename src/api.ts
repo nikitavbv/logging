@@ -125,7 +125,7 @@ export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequ
 function serve_file(req: HttpRequest, file_path: string) {
     fs.exists(file_path, exists => {
         if (!exists) {
-            req.not_found(req.url);
+            req.not_found(`Not found: ${req.url}`);
             return;
         }
 
@@ -142,7 +142,7 @@ function serve_file(req: HttpRequest, file_path: string) {
 }
 
 export const serve_static = (static_resources_path: string) => (req: HttpRequest) => {
-    const dir = static_resources_path.endsWith('/') ? static_resources_path : `${static_resources_path}/`;
+        const dir = static_resources_path.endsWith('/') ? static_resources_path : `${static_resources_path}/`;
     
     const url = req.url.endsWith('/') ? `${req.url}index.html` : req.url;
 
