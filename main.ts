@@ -18,7 +18,7 @@ stream.forEach(console.log); // log each request
 
 stream
     .filter(url_not_starting_with('/api/v1'))
-    .forEach(serve_static('static'));
+    .forEach(serve_static(config.static_dir));
 
 const apiStream = stream
     .filter(url_starting_with('/api/v1'))
