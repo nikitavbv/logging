@@ -14,8 +14,6 @@ const stream = new HttpStream();
 
 http.createServer(stream.server.bind(stream)).listen(config.port);
 
-stream.forEach(console.log); // log each request
-
 stream
     .filter(url_not_starting_with('/api/v1'))
     .forEach(serve_static(config.static_dir));
