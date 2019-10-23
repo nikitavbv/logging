@@ -122,11 +122,15 @@ export const url_not_starting_with = (prefix: string) => (req: HttpRequest): boo
 export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequest =>
     new HttpRequest(req.url.replace(prefix, ''), req.method, req.callback);
 
-function serve_file(req: HttpRequest, file_path: string) {
+function serve_file(req: HttpRequest, file_path: string, not_found_path?: string) {
     fs.exists(file_path, exists => {
         if (!exists) {
-            req.not_found(`Not found: ${req.url}`);
-            return;
+            if (file_path === not_found_path || not_found_path === undefined) {
+                req.not_found(`Not found: ${req.url}`);
+                return;
+            }
+
+            return serve_file(req, not_found_path, not_found_path);
         }
 
         fs.readFile(file_path, 'utf8', (err, data) => {
@@ -141,16 +145,18 @@ function serve_file(req: HttpRequest, file_path: string) {
     });
 }
 
-export const serve_static = (static_resources_path: string) => (req: HttpRequest) => {
-        const dir = static_resources_path.endsWith('/') ? static_resources_path : `${static_resources_path}/`;
-    
-    const url = req.url.endsWith('/') ? `${req.url}index.html` : req.url;
+function static_resource_path(static_resources_path: string, relative_path: string) {
+    const dir = static_resources_path.endsWith('/') ? static_resources_path : `${static_resources_path}/`;
+    const url = relative_path.endsWith('/') ? `${relative_path}index.html` : relative_path;
+    return path.join(dir, url);
+}
 
-    const file_path = path.join(dir, url);
+export const serve_static = (static_resources_path: string, not_found?: string) => (req: HttpRequest) => {
+    const file_path = static_resource_path(static_resources_path, req.url);
     
-    if (!file_path.startsWith(dir)) {
-        return serve_file(req, path.join(dir, 'index.html'));
+    if (!file_path.startsWith(file_path)) {
+        return serve_file(req, static_resource_path(static_resources_path, 'index.html'));
     }
 
-    return serve_file(req, file_path);
+    return serve_file(req, file_path, not_found === undefined ? undefined : static_resource_path(static_resources_path, not_found));
 };
