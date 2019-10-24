@@ -10,6 +10,7 @@ import {
 } from './api';
 
 import authInit from './auth';
+import logInit from './log';
 import loggerInit from './logger';
 
 export default (database: Client): HttpStream => {
@@ -23,6 +24,7 @@ export default (database: Client): HttpStream => {
 
     apiStream.method(HttpMethod.GET).url('/').forEach(req => req.ok('api root'));
     authInit(apiStream.url_prefix_stream('/auth'));
+    logInit(apiStream.url_prefix_stream('/log'), database);
     loggerInit(authorizedStream.url_prefix_stream('/logger'), database);
 
     return stream;

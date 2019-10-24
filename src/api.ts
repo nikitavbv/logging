@@ -139,7 +139,7 @@ export const to_http_request = async (req: http.IncomingMessage, res: http.Serve
     const body = method === HttpMethod.POST ?
         await read_post_body(req) : undefined;
 
-    const cookies = parse_cookie(req.headers.cookie as string);
+    const cookies = req.headers.cookie !== undefined ? parse_cookie(req.headers.cookie as string) : undefined;
     
     const callback = (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => {
         res.writeHead(http_status_to_code(status), headers);
