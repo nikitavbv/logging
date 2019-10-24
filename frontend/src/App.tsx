@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
-import Home from './Home';
+import Landing from './Landing';
+import { Home } from './home';
 import { Auth, loadGapi } from './auth';
 
 const App: React.FC = () => {
@@ -9,11 +10,12 @@ const App: React.FC = () => {
     <Router>
         <div className="app">
           <header className="header">
-            header  
+            logging  
           </header>
           <div className="content">
-            <Route path="/" exact component={Home}/>
-            <Route path="/auth" render={() => <Auth loadGapi={loadGapi} />}/>
+            <Route path="/" exact component={Landing} />
+            <Route path="/auth" render={() => <Auth loadGapi={loadGapi} />} />
+            <Route path="/home" exact component={Home} />
           </div>
         </div>
     </Router>

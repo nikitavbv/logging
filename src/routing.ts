@@ -1,3 +1,5 @@
+import { Client } from 'pg';
+
 import config from './config';
 
 import { 
@@ -8,9 +10,9 @@ import {
 } from './api';
 
 import authInit from './auth';
-import collectorInit from './collector';
+import loggerInit from './logger';
 
-export default (): HttpStream => {
+export default (database: Client): HttpStream => {
     const stream = new HttpStream();
     stream
         .filter(url_not_starting_with('/api/v1'))
@@ -21,7 +23,7 @@ export default (): HttpStream => {
 
     apiStream.method(HttpMethod.GET).url('/').forEach(req => req.ok('api root'));
     authInit(apiStream.url_prefix_stream('/auth'));
-    collectorInit(authorizedStream.url_prefix_stream('/collector'));
+    loggerInit(authorizedStream.url_prefix_stream('/logger'), database);
 
     return stream;
 };

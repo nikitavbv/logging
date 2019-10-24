@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Home: React.FC = () => {
+const Landing: React.FC = () => {
     return (
         <div>
-            home page
+            welcome
         </div>
     );
 };
 
-export default Home;
+export default Landing;

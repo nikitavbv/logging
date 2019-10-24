@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+  database:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: logging_dev_user
+      POSTGRES_PASSWORD: logging_dev_password
+    ports:
+      - 5432:5432

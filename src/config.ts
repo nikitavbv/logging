@@ -6,5 +6,6 @@ export default Object.assign({
     app_secret: 'some app secret',
     jwt_config: {
         expiresIn: '1d',
-    }
+    },
+    database_connection_string: 'postgres://logging_dev_user:logging_dev_password@localhost:5432/postgres'
 }, JSON.parse(readFileSync('config.json', 'utf8')));
