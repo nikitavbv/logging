@@ -11,7 +11,9 @@
   "author": "Nikita Volobuev",
   "license": "MIT",
   "dependencies": {
+    "@types/jsonwebtoken": "^8.3.5",
     "@types/node": "^12.7.5",
+    "jsonwebtoken": "^8.5.1",
     "typescript": "^3.6.3"
   }
 }

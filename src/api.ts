@@ -9,12 +9,13 @@ export class HttpRequest {
     constructor(
         public url: string, 
         public method: HttpMethod,
-        public callback: (status: HttpStatus, body: HttpBody) => void,
+        public body: HttpBody,
+        public callback: (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => void,
     ) {}
 
-    ok = (body: HttpBody) => this.callback(HttpStatus.OK, body);
-    not_found = (body: HttpBody) => this.callback(HttpStatus.NOT_FOUND, body);
-    internal_error = () => this.callback(HttpStatus.INTERNAL_ERROR, 'internal server error');
+    ok = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.OK, head || {}, body);
+    not_found = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.NOT_FOUND, head || {}, body);
+    internal_error = (head?: HttpResponseHeaders) => this.callback(HttpStatus.INTERNAL_ERROR, head || {}, 'internal server error');
 };
 
 export type HttpBody = any;
@@ -32,19 +33,27 @@ export enum HttpStatus {
     INTERNAL_ERROR,
 }
 
+export type HttpResponseHeaders = http.OutgoingHttpHeaders;
+
 export class HttpStream extends Stream<HttpRequest> {
 
     server(req: http.IncomingMessage, res: http.ServerResponse) {
-        const request = to_http_request(req, res);
-        if (request === undefined) {
-            res.writeHead(400, {
-                'Content-Type': 'text/plain' 
-            });
-            res.end('invalid request.');
-            return;
-        }
+        to_http_request(req, res).then(request => {
+            if (request === undefined) {
+                res.writeHead(400, {
+                    'Content-Type': 'text/plain' 
+                });
+                res.end('invalid request.');
+                return;
+            }
+    
+            this.push(request);
+        });
+    }
 
-        this.push(request);
+    url_prefix_stream(url_prefix: string): HttpStream {
+        return this.filter(url_starting_with(url_prefix))
+            .map(strip_url_prefix(url_prefix), new HttpStream()) as HttpStream;
     }
 
     method(method: HttpMethod): HttpStream {
@@ -90,27 +99,49 @@ function http_status_to_code(status: HttpStatus): number {
     }
 }
 
-export const to_http_request = (req: http.IncomingMessage, res: http.ServerResponse): HttpRequest | undefined => {
+async function read_post_body(req: http.IncomingMessage): Promise<HttpBody> {
+    return new Promise((resolve, _) => {
+        let body = '';
+        
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        
+        req.on('end', () => {
+            resolve(JSON.parse(body));
+        });
+    });
+}
+
+export const to_http_request = async (req: http.IncomingMessage, res: http.ServerResponse): Promise<HttpRequest | undefined> => {
     if (req.method === undefined) {
-        return undefined;
+        return Promise.resolve(undefined);
     }
 
     const method = get_method(req.method);
     if (method === undefined) {
-        return undefined;
+        return Promise.resolve(undefined);
     }
 
     const path = req.url;
     if (path === undefined) {
-        return undefined;
+        return Promise.resolve(undefined);
     }
 
-    const callback = (status: HttpStatus, body: HttpBody) => {
-        res.writeHead(http_status_to_code(status));
+    const body = method === HttpMethod.POST ?
+        await read_post_body(req) : undefined;
+
+    const callback = (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => {
+        res.writeHead(http_status_to_code(status), headers);
+
+        if (typeof body !== 'string' && !Buffer.isBuffer(body)) {
+            body = JSON.stringify(body);
+        }
+        
         res.end(body);
     };
 
-    return new HttpRequest(path, method, callback);
+    return new HttpRequest(path, method, body, callback);
 }
 
 export const url_starting_with = (prefix: string) => (req: HttpRequest): boolean =>
@@ -120,7 +151,7 @@ export const url_not_starting_with = (prefix: string) => (req: HttpRequest): boo
     !req.url.startsWith(prefix);
 
 export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequest =>
-    new HttpRequest(req.url.replace(prefix, ''), req.method, req.callback);
+    new HttpRequest(req.url.replace(prefix, ''), req.method, req.body, req.callback);
 
 function serve_file(req: HttpRequest, file_path: string, not_found_path?: string) {
     fs.exists(file_path, exists => {

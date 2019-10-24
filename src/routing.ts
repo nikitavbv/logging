@@ -3,11 +3,11 @@ import config from './config';
 import { 
     HttpStream, 
     HttpMethod,
-    url_starting_with,
     url_not_starting_with,
-    strip_url_prefix,
     serve_static,
 } from './api';
+
+import authInit from './auth';
 
 export default (): HttpStream => {
     const stream = new HttpStream();
@@ -15,14 +15,10 @@ export default (): HttpStream => {
         .filter(url_not_starting_with('/api/v1'))
         .forEach(serve_static(config.static_dir, '/'));
 
-    const apiStream = stream
-        .filter(url_starting_with('/api/v1'))
-        .map(strip_url_prefix('/api/v1'), new HttpStream()) as HttpStream;
+    const apiStream = stream.url_prefix_stream('/api/v1');
 
     apiStream.method(HttpMethod.GET).url('/').forEach(req => req.ok('api root'));
-
-    const authStream = apiStream.filter(url_starting_with('/auth'))
-        .map(strip_url_prefix('/auth'), new HttpStream()) as HttpStream;
+    authInit(apiStream.url_prefix_stream('/auth'));
 
     return stream;
 };
