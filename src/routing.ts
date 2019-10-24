@@ -12,6 +12,7 @@ import {
 import authInit from './auth';
 import logInit from './log';
 import loggerInit from './logger';
+import queryInit from './query';
 
 export default (database: Client): HttpStream => {
     const stream = new HttpStream();
@@ -26,6 +27,7 @@ export default (database: Client): HttpStream => {
     authInit(apiStream.url_prefix_stream('/auth'));
     logInit(apiStream.url_prefix_stream('/log'), database);
     loggerInit(authorizedStream.url_prefix_stream('/logger'), database);
+    queryInit(apiStream.url_prefix_stream('/query'), database);
 
     return stream;
 };

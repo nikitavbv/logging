@@ -71,6 +71,10 @@ async function decode_jwt_token(token: string): Promise<Token> {
 }
 
 export const filter_authorization = async (req: HttpRequest): Promise<boolean> => {
+    if (req.cookies === undefined) {
+        return false;
+    }
+   
     const auth_cookie = req.cookies.auth;
     if (auth_cookie === undefined) {
         return false;
