@@ -71,6 +71,6 @@ export class Auth extends React.Component<AuthProps> {
             body: JSON.stringify({
                 access_token
             })
-        }).then(console.log.bind('auth api response'));
+        }).then(() => window.location.href = '/home');
     }
 }
