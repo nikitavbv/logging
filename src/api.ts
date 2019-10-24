@@ -3,14 +3,16 @@ import path from 'path';
 import fs from 'fs';
 
 import { Stream } from './stream';
+import { AuthInfo, filter_authorization, map_authorization } from './auth';
 
 export class HttpRequest {
-
     constructor(
         public url: string, 
         public method: HttpMethod,
         public body: HttpBody,
+        public cookies: Cookies,
         public callback: (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => void,
+        public auth?: AuthInfo,
     ) {}
 
     ok = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.OK, head || {}, body);
@@ -34,6 +36,8 @@ export enum HttpStatus {
 }
 
 export type HttpResponseHeaders = http.OutgoingHttpHeaders;
+
+export type Cookies = any;
 
 export class HttpStream extends Stream<HttpRequest> {
 
@@ -62,6 +66,10 @@ export class HttpStream extends Stream<HttpRequest> {
 
     url(url: string): HttpStream {
         return this.filter(req => this.compare_url(url, req.url), new HttpStream()) as HttpStream;
+    }
+
+    auth(): HttpStream {
+        return this.filter(filter_authorization).map(map_authorization, new HttpStream()) as HttpStream;
     }
 
     private compare_url(rule: string, actual: string) {
@@ -131,17 +139,19 @@ export const to_http_request = async (req: http.IncomingMessage, res: http.Serve
     const body = method === HttpMethod.POST ?
         await read_post_body(req) : undefined;
 
+    const cookies = parse_cookie(req.headers.cookie as string);
+    
     const callback = (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => {
         res.writeHead(http_status_to_code(status), headers);
 
         if (typeof body !== 'string' && !Buffer.isBuffer(body)) {
             body = JSON.stringify(body);
         }
-        
+
         res.end(body);
     };
 
-    return new HttpRequest(path, method, body, callback);
+    return new HttpRequest(path, method, body, cookies, callback);
 }
 
 export const url_starting_with = (prefix: string) => (req: HttpRequest): boolean =>
@@ -151,7 +161,22 @@ export const url_not_starting_with = (prefix: string) => (req: HttpRequest): boo
     !req.url.startsWith(prefix);
 
 export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequest =>
-    new HttpRequest(req.url.replace(prefix, ''), req.method, req.body, req.callback);
+    new HttpRequest(req.url.replace(prefix, ''), req.method, req.body, req.cookies, req.callback, req.auth);
+
+const parse_cookie = (cookie: string): Cookies => {
+    const cookies: Cookies = {};
+
+    cookie.split(';')
+        .map(s => s.trim())
+        .forEach(cookie_item => {
+            const spl = cookie_item.split('=');
+            const key = spl[0];
+            const value = spl[1];
+            cookies[key] = value;
+        });
+    
+    return cookies as Cookies
+}
 
 function serve_file(req: HttpRequest, file_path: string, not_found_path?: string) {
     fs.exists(file_path, exists => {

@@ -10,10 +10,20 @@ export class Stream<T> {
         });
     }
 
-    map<E>(f: (arg: T) => E, target_stream?: Stream<E>): Stream<E> {
+    map<E>(f: (arg: T) => E | Promise<E>, target_stream?: Stream<E>): Stream<E> {
         const stream = target_stream || new Stream<E>();
     
-        this.listeners.push((arg: T) => stream.push(f(arg)));
+        this.listeners.push((arg: T) => {
+            const mapped_value = f(arg);
+
+            if (mapped_value instanceof Promise) {
+                mapped_value.then(result => {
+                    stream.push(result);
+                });
+            } else {
+                stream.push(mapped_value);
+            }
+        });
 
         return stream;
     }
@@ -25,11 +35,19 @@ export class Stream<T> {
         return this;
     }
 
-    filter(f: (arg: T) => boolean, target_stream?: Stream<T>): Stream<T> {
+    filter(f: (arg: T) => boolean | Promise<boolean>, target_stream?: Stream<T>): Stream<T> {
         const stream = target_stream || new Stream<T>();
 
         this.listeners.push((arg: T) => {
-            if (f(arg)) {
+            const condition = f(arg);
+            
+            if (condition instanceof Promise) {
+                condition.then(result => {
+                    if (result) {
+                        stream.push(arg);
+                    }
+                });
+            } else if (condition) {
                 stream.push(arg);
             }
         });
