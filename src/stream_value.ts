@@ -12,10 +12,7 @@ export class StreamValue<T> {
     }
 
     update(value: T) {
-        if (value !== this.value) {
-            this.listeners.forEach(listener => listener(value));
-        }
-        
+        this.listeners.forEach(listener => listener(value));
         this.value = value;
     }
 

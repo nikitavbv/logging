@@ -21,9 +21,7 @@ export class Home extends React.Component {
 
     render() {
         return (
-            <div>
-                home
-    
+            <div>    
                 <h1>Create logger</h1>
                 { this.render_created_logger_message() }
                 <input placeholder="Logger name" value={this.state.logger_name_input} onChange={this.handle_logger_name_change.bind(this)} />
@@ -31,7 +29,7 @@ export class Home extends React.Component {
 
                 <h1>Query</h1>
                 <textarea value={this.state.query} onChange={this.handle_query_change.bind(this)}></textarea>
-                <button onClick={this.run_query.bind(this)}>Run</button>
+                <button onClick={this.run_query.bind(this)} style={{'display': 'block', 'margin': '8px 0'}}>Run</button>
 
                 { this.render_query_result(this.state.query_result) }
             </div>
@@ -135,6 +133,10 @@ export class Home extends React.Component {
     render_query_result_table_row_cell(cell: any) {
         if (typeof cell === 'object') {
             return JSON.stringify(cell);
+        }
+
+        if (cell === undefined) {
+            return 'undefined';
         }
 
         return cell.toString();
