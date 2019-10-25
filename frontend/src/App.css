@@ -151,3 +151,11 @@ tr:nth-child(even) {
     margin-top: 60px;
     user-select: none;
 }
+
+.created_logger_message {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.82);
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 8px;
+}
