@@ -11,9 +11,9 @@ header {
     white-space: unset;
     height: 40px;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.82);
     color: white;
-    font-size: 20pt;
+    font-size: 18pt;
     font-weight: 100;
     line-height: 40px;
     padding: 0 12px;
@@ -96,4 +96,14 @@ th {
 
 tr:nth-child(even) {
     background-color: #f2f2f2;
+}
+
+.signin-btn {
+    width: 200px;
+    height: auto;
+    margin: 0 auto;
+    cursor: pointer;
+    display: block;
+    margin-top: 60px;
+    user-select: none;
 }

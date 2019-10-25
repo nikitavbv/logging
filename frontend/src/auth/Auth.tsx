@@ -36,7 +36,7 @@ export class Auth extends React.Component<AuthProps> {
 
         return (
             <div>
-                <button onClick={this.signIn}>Sign In</button>
+                <img className="signin-btn" onClick={this.signIn} src={require("./google_signin.png")} />
             </div>
         );
     }
