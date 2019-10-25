@@ -55,13 +55,13 @@ export class Stream<T> {
         return stream;
     }
 
-    reduce(f: (a: T, b: T) => T, initial?: T, target_value?: StreamValue<T>): StreamValue<T> {
-        const v = target_value || new StreamValue<T>(initial);
+    reduce<E>(f: (a: E, b: T) => E, initial?: E, target_value?: StreamValue<E>): StreamValue<E> {
+        const v = target_value || new StreamValue<E>(initial);
         let first_element = true;
 
         this.listeners.push((arg: T) => {
             if (initial === undefined && first_element) {
-                v.update(arg);
+                v.update(arg as unknown as E);
                 first_element = false;
                 return;
             }

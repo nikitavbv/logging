@@ -27,18 +27,27 @@ function run_query(database: Client, req: HttpRequest) {
     const body = req.body as QueryRequest;
 
     const query_context = {
+        Object,
+
         service: select_service(database)
     };
     const result: any[] = [];
     const ctx = vm.createContext(query_context);
     const stream = vm.runInContext(body.query, ctx);
 
-    (stream as Stream<any>).forEach(r => {
-        result.push(r);
-        console.log(result);
-    });
+    console.log(stream);
 
-    setTimeout(() => req.ok(result), 2000);
+    if (stream.forEach) {
+        (stream as Stream<any>).forEach(r => {
+            result.push(r);
+        });
+        setTimeout(() => req.ok(result), 2000);
+    } else if(stream.get) {
+        setTimeout(() => console.log(stream.get()), 2000);
+        setTimeout(() => req.ok(stream.get()), 2000);
+    } else {
+        req.ok(stream);
+    }
 }
 
 export default (stream: HttpStream, database: Client) => {
