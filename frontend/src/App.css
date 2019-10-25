@@ -21,6 +21,41 @@ header {
     user-select: none;
 }
 
+.header-ctl {
+    height: 40px;
+    line-height: 40px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.links {
+    display: inline-block;
+    top: 0;
+    position: absolute;
+    right: 0;
+    width: max-content;
+    vertical-align: middle;
+    color: white;
+    font-size: 0;
+}
+
+.links a {
+    display: inline-block;
+    transition: background 0.4s ease-out;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px 0 10px;
+    vertical-align: middle;
+    color: white;
+    text-decoration: none;
+    font-size: 12pt;
+}
+
+.links a:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
 input {
     margin: 0 auto;
     width: 500px;

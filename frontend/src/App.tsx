@@ -13,7 +13,13 @@ const App: React.FC = () => {
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400" rel="stylesheet" />
         <div className="app">
           <header className="header">
-            Logging  
+            Logging
+
+            <div className="header-ctl">
+              <div className="links">
+                <a href="/">Loggers</a>
+              </div>
+            </div>
           </header>
           <main className="content">
             <Route path="/" exact component={Landing} />
