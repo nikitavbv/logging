@@ -21,48 +21,14 @@ export class Home extends React.Component {
 
     render() {
         return (
-            <div>    
-                <h1>Create logger</h1>
-                { this.render_created_logger_message() }
-                <input placeholder="Logger name" value={this.state.logger_name_input} onChange={this.handle_logger_name_change.bind(this)} />
-                <button onClick={this.create_logger.bind(this)}>Create</button>
-
+            <div>
                 <h1>Query</h1>
-                <textarea value={this.state.query} onChange={this.handle_query_change.bind(this)}></textarea>
+                <textarea rows={8} value={this.state.query} onChange={this.handle_query_change.bind(this)}></textarea>
                 <button onClick={this.run_query.bind(this)} style={{'display': 'block', 'margin': '8px 0'}}>Run</button>
 
                 { this.render_query_result(this.state.query_result) }
             </div>
         );
-    }
-
-    render_created_logger_message() {
-        if (this.state.created_logger_id === undefined) {
-            return (<div></div>);
-        }
-
-        return (<div className="created_logger_message">Logger created: {this.state.created_logger_id}</div>);
-    }
-
-    handle_logger_name_change(event: React.FormEvent<HTMLInputElement>) {
-        this.setState({ ...this.state, logger_name_input: event.currentTarget.value });
-    }
-
-    create_logger() {
-        this.setState({ ...this.state, logger_name_input: '' });
-
-        fetch('/api/v1/logger', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: this.state.logger_name_input
-            })
-        }).then(res => res.json().then(data => {
-            this.setState({ ...this.state, created_logger_id: data.logger_id });
-        }));
     }
 
     handle_query_change(event: React.FormEvent<HTMLTextAreaElement>) {

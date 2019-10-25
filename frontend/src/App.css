@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Open Sans';
 }
@@ -19,6 +23,11 @@ header {
     padding: 0 12px;
     font-family: 'Open Sans';
     user-select: none;
+}
+
+header a {
+    text-decoration: none;
+    color: white;
 }
 
 .header-ctl {
