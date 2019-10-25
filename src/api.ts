@@ -189,7 +189,7 @@ function serve_file(req: HttpRequest, file_path: string, not_found_path?: string
             return serve_file(req, not_found_path, not_found_path);
         }
 
-        fs.readFile(file_path, 'utf8', (err, data) => {
+        fs.readFile(file_path, (err, data) => {
             if (err) {
                 console.error('failed to read static file:', err);
                 req.internal_error();
