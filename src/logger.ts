@@ -2,10 +2,27 @@ import { AssertionError } from 'assert';
 
 import uuid from 'uuid';
 import { Client } from 'pg';
+import crypto from 'crypto';
 
 import { HttpStream, HttpMethod, HttpRequest } from "./api";
 
 const logging_context = {};
+
+const generate_api_key = (): Promise<string> => new Promise((resolve, reject) => {
+    crypto.randomBytes(24, (err, buffer) => {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(buffer.toString('hex'));     
+        }
+    });
+});
+
+const hash_api_key = (api_key: string): string => {
+    const hash = crypto.createHash('sha512');
+    hash.update(api_key);
+    return hash.digest('hex');
+}
 
 const get_loggers = async (database: Client, req: HttpRequest) => {
     if (req.auth === undefined) {
@@ -26,14 +43,16 @@ const create_logger = async (database: Client, req: HttpRequest) => {
     }
 
     const name = req.body.name;
+    const api_key = await generate_api_key();
+    const api_key_hash = await hash_api_key(api_key);
     const id = uuid();
-
     const user_id = req.auth.user_id;
 
-    await database.query('INSERT INTO loggers (id, user_id, name) VALUES ($1, $2, $3)', [ id, user_id, name ]);
+    await database.query('INSERT INTO loggers (id, user_id, api_key, name) VALUES ($1, $2, $3, $4)', [ id, user_id, api_key_hash, name ]);
 
     req.ok({
-        logger_id: id
+        logger_id: id,
+        api_key
     });
 };
 
