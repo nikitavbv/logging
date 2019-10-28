@@ -11,10 +11,19 @@ create table log
 alter table log
     owner to logging_dev_user;
 
+create table logger_access
+(
+    logger uuid        not null,
+    "user" varchar(64) not null
+);
+
+alter table logger_access
+    owner to logging_dev_user;
+
+
 create table loggers
 (
     id      uuid         not null,
-    user_id varchar(64)  not null,
     name    varchar(255) not null,
     api_key varchar(255) not null
 );
