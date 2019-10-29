@@ -48,7 +48,10 @@ const create_logger = async (database: Client, req: HttpRequest) => {
     const id = uuid();
     const user_id = req.auth.user_id;
 
-    await database.query('INSERT INTO loggers (id, user_id, api_key, name) VALUES ($1, $2, $3, $4)', [ id, user_id, api_key_hash, name ]);
+    await Promise.all([
+        database.query('INSERT INTO loggers (id, api_key, name) VALUES ($1, $2, $3, $4)', [ id, user_id, api_key_hash, name ]),
+        database.query('INSERT INTO logger_access (logger, user) VALUES ($1, $2)', [ id, user_id ])
+    ]);
 
     req.ok({
         logger_id: id,
