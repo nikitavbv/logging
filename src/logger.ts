@@ -59,7 +59,12 @@ const create_logger = async (database: Client, req: HttpRequest) => {
     });
 };
 
-export default (stream: HttpStream, database: Client) => {
+const init = (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.GET).forEach(get_loggers.bind(logging_context, database));
     stream.url('/').method(HttpMethod.POST).forEach(create_logger.bind(logging_context, database));
 };
+
+export {
+    hash_api_key,
+    init
+}

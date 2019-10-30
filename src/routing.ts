@@ -11,7 +11,7 @@ import {
 
 import authInit from './auth';
 import logInit from './log';
-import loggerInit from './logger';
+import { init as loggerInit } from './logger';
 import queryInit from './query';
 
 export default (database: Client): HttpStream => {
