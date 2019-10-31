@@ -7,7 +7,7 @@ type Logger = {
 
 type LoggersState = {
     logger_name_input: string,
-    created_logger_id: string | undefined,
+    created_logger_api_key: string | undefined,
     loggers: Logger[],
 };
 
@@ -18,7 +18,7 @@ export class Loggers extends React.Component {
         super({});
         this.state = {
             logger_name_input: '',
-            created_logger_id: undefined,
+            created_logger_api_key: undefined,
             loggers: [],
         } as LoggersState;
 
@@ -52,11 +52,11 @@ export class Loggers extends React.Component {
     }
 
     render_created_logger_message() {
-        if (this.state.created_logger_id === undefined) {
+        if (this.state.created_logger_api_key === undefined) {
             return (<div></div>);
         }
 
-        return (<div className="created_logger_message">Logger created: {this.state.created_logger_id}</div>);
+        return (<div className="created_logger_message">Logger created. API key: {this.state.created_logger_api_key}</div>);
     }
 
     handle_logger_name_change(event: React.FormEvent<HTMLInputElement>) {
@@ -77,7 +77,7 @@ export class Loggers extends React.Component {
                 name,
             })
         }).then(res => res.json().then(data => {
-            this.setState({ ...this.state, created_logger_id: data.logger_id, loggers: [...this.state.loggers, {
+            this.setState({ ...this.state, created_logger_api_key: data.api_key, loggers: [...this.state.loggers, {
                 name,
                 id: data.logger_id, 
             }] });
@@ -89,7 +89,7 @@ export class Loggers extends React.Component {
             <table>
                 <tr>
                     <th>Name</th>
-                    <th>API Key</th>
+                    <th>ID</th>
                 </tr>
                 { loggers.map(logger => this.render_loggers_list_row(logger)) }
             </table>
