@@ -56,7 +56,7 @@ export class Loggers extends React.Component {
             return (<div></div>);
         }
 
-        return (<div className="created_logger_message">Logger created. API key: {this.state.created_logger_api_key}</div>);
+        return (<div className="created_logger_message">Logger created. API key: {this.state.created_logger_api_key}. This will not be shown to you later, please save it.</div>);
     }
 
     handle_logger_name_change(event: React.FormEvent<HTMLInputElement>) {
