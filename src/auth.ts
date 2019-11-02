@@ -72,11 +72,13 @@ async function decode_jwt_token(token: string): Promise<Token> {
 
 export const filter_authorization = async (req: HttpRequest): Promise<boolean> => {
     if (req.cookies === undefined) {
+        req.unauthorized({ 'status': 'unauthorized '});
         return false;
     }
    
     const auth_cookie = req.cookies.auth;
     if (auth_cookie === undefined) {
+        req.unauthorized({ 'status': 'unauthorized '});
         return false;
     }
 
@@ -84,6 +86,9 @@ export const filter_authorization = async (req: HttpRequest): Promise<boolean> =
         await decode_jwt_token(req.cookies.auth);
         return true;
     } catch(e) {
+        req.unauthorized({ 'status': 'unauthrozied' }, {
+            'Set-Cookie': `auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        });
         return false;
     }
 };

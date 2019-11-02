@@ -16,6 +16,7 @@ export class HttpRequest {
     ) {}
 
     ok = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.OK, head || {}, body);
+    unauthorized = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.UNAUTHORIZED, head || {}, body);
     not_found = (body: HttpBody, head?: HttpResponseHeaders) => this.callback(HttpStatus.NOT_FOUND, head || {}, body);
     internal_error = (head?: HttpResponseHeaders) => this.callback(HttpStatus.INTERNAL_ERROR, head || {}, 'internal server error');
 };
@@ -31,6 +32,7 @@ export enum HttpMethod {
 
 export enum HttpStatus {
     OK,
+    UNAUTHORIZED,
     NOT_FOUND,
     INTERNAL_ERROR,
 }
