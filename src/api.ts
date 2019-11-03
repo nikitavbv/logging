@@ -102,6 +102,8 @@ function http_status_to_code(status: HttpStatus): number {
     switch (status) {
         case HttpStatus.OK:
             return 200;
+        case HttpStatus.UNAUTHORIZED:
+            return 401;
         case HttpStatus.NOT_FOUND:
             return 404;
         case HttpStatus.INTERNAL_ERROR:

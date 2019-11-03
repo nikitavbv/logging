@@ -72,7 +72,7 @@ async function decode_jwt_token(token: string): Promise<Token> {
 
 export const filter_authorization = async (req: HttpRequest): Promise<boolean> => {
     if (req.cookies === undefined) {
-        req.unauthorized({ 'status': 'unauthorized '});
+        req.unauthorized({ 'status': 'unauthorized'});
         return false;
     }
    
