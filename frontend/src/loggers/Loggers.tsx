@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { api_request } from '../api';
+
 type Logger = {
     name: string,
     id: string
@@ -40,14 +42,14 @@ export class Loggers extends React.Component {
     }
 
     request_loggers() {
-        fetch('/api/v1/logger', {
+        api_request('/api/v1/logger', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
         })
-            .then(res => res.json())
+            .then(res => res !== undefined ? res.json() : undefined)
             .then(data => this.setState({ ...this.state, loggers: data.loggers }));
     }
 
@@ -67,7 +69,7 @@ export class Loggers extends React.Component {
         const name = this.state.logger_name_input;
         this.setState({ ...this.state, logger_name_input: '' });
 
-        fetch('/api/v1/logger', {
+        api_request('/api/v1/logger', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -76,12 +78,25 @@ export class Loggers extends React.Component {
             body: JSON.stringify({
                 name,
             })
-        }).then(res => res.json().then(data => {
-            this.setState({ ...this.state, created_logger_api_key: data.api_key, loggers: [...this.state.loggers, {
-                name,
-                id: data.logger_id, 
-            }] });
-        }));
+        }).then(res => {
+            if (res === undefined) {
+                return
+            }
+
+            res.json().then(data => {
+                this.setState({ 
+                    ...this.state, 
+                    created_logger_api_key: data.api_key, 
+                    loggers: [
+                        ...this.state.loggers, 
+                        {
+                            name,
+                            id: data.logger_id, 
+                        }
+                    ] 
+                })
+            })
+        });
     }
 
     render_loggers_list(loggers: Logger[]) {
