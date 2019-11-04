@@ -16,6 +16,7 @@
     "@types/pg": "^7.11.2",
     "@types/uuid": "^3.4.5",
     "jsonwebtoken": "^8.5.1",
+    "metasync": "github:metarhia/metasync",
     "pg": "^7.12.1",
     "typescript": "^3.6.3",
     "uuid": "^3.3.3"
