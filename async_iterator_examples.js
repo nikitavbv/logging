@@ -22,3 +22,15 @@ const asyncIterResult = metasync.asyncIter(asyncIterable)
     .reduce((a, b) => a + b);
 
 asyncIterResult.then(console.log);
+
+// avg example
+let count = 0;
+let sum = 0;
+
+metasync.asyncIter(asyncIterable)
+    .map(x => x * 2)
+    // this cannot be split.
+    .forEach(n => {
+        count++;
+        sum+=n;
+    }).then(() => console.log(sum / count));
