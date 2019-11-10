@@ -112,6 +112,11 @@ async function do_auth(req: HttpRequest) {
     });
 }
 
+async function logout(req: HttpRequest) {
+    req.ok({ status: 'ok' }, { 'Set-Cookie': 'auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT' });
+}
+
 export default (stream: HttpStream) => {
     stream.url('/').method(HttpMethod.POST).forEach(do_auth);
+    stream.url('/logout').method(HttpMethod.POST).forEach(logout);
 };
