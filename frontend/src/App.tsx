@@ -1,4 +1,5 @@
 import React from 'react';
+import { RouterState } from 'connected-react-router';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
 import { Home } from './home';
@@ -7,7 +8,26 @@ import { Loggers } from './loggers';
 
 import './App.css';
 
+const is_authenticated = () => localStorage.getItem('authenticated') != null;
+
+const require_auth = (nextState: RouterState, replace: Function, next: Function) => {
+  if (!is_authenticated()) {
+    replace({
+      pathname: '/login',
+      state: { nextPathname: nextState.location.pathname }
+    });
+  }
+
+  next();
+}
+
 const App: React.FC = () => {
+  const header_links_requiring_auth = is_authenticated ? (
+    <div className="user-links">
+      <a href="/loggers">Loggers</a>
+    </div>
+  ) : (<div className="user-links"></div>);
+
   return (
     <Router>
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400" rel="stylesheet" />
@@ -17,14 +37,14 @@ const App: React.FC = () => {
 
             <div className="header-ctl">
               <div className="links">
-                <a href="/loggers">Loggers</a>
+                { header_links_requiring_auth }
               </div>
             </div>
           </header>
           <main className="content">
             <Route path="/" exact component={Home} />
             <Route path="/auth" render={() => <Auth loadGapi={loadGapi} />} />
-            <Route path="/loggers" exact component={Loggers} />
+            <Route path="/loggers" exact component={Loggers} onEnter={require_auth} />
           </main>
         </div>
     </Router>

@@ -11,6 +11,7 @@
     "@types/react-dom": "16.9.0",
     "@types/react-router": "^5.0.5",
     "@types/react-router-dom": "^4.3.5",
+    "connected-react-router": "^6.5.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-google-login": "^5.0.5",
