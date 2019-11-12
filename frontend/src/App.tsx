@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const header_links_requiring_auth = is_authenticated ? (
     <div className="user-links">
       <a href="/loggers">Loggers</a>
+      <a href="/">Log out</a>
     </div>
   ) : (<div className="user-links"></div>);
 
