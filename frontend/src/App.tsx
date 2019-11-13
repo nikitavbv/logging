@@ -21,11 +21,13 @@ const require_auth = (nextState: RouterState, replace: Function, next: Function)
   next();
 }
 
+const log_out = () => localStorage.removeItem('authenticated');
+
 const App: React.FC = () => {
   const header_links_requiring_auth = is_authenticated ? (
     <div className="user-links">
       <a href="/loggers">Loggers</a>
-      <a href="/">Log out</a>
+      <a href="/" onClick={log_out()}>Log out</a>
     </div>
   ) : (<div className="user-links"></div>);
 
