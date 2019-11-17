@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { api_request } from '../api';
+import { api_request } from '../api/api';
 
 type Logger = {
     name: string,

@@ -59,6 +59,9 @@ export class Auth extends React.Component<AuthProps> {
 
         if (authorized) {
             this.sendTokenToBackend(user.getAuthResponse().access_token);
+            localStorage.setItem('authenticated', 'true');
+        } else {
+            localStorage.removeItem('authenticated');
         }
     }
 
