@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { UserQueriesList } from '../components';
+
 type HomeState = {
     logger_name_input: string,
     created_logger_id: string | undefined,
@@ -27,6 +29,8 @@ export class Home extends React.Component {
                 <button onClick={this.run_query.bind(this)} style={{'display': 'block', 'margin': '8px 0'}}>Run</button>
 
                 { this.render_query_result(this.state.query_result) }
+
+                <UserQueriesList />
             </div>
         );
     }
