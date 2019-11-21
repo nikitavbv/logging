@@ -34,19 +34,6 @@ export class Home extends React.Component {
         this.setState({ ...this.state, query: event.currentTarget.value });
     }
 
-    run_query() {
-        fetch('/api/v1/query', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query: this.state.query }),
-        }).then(res => res.json().then(data => {
-            this.setState({ ...this.state, query_result: data });
-        }))
-    }
-
     render_query_result(result: unknown) {
         if (Array.isArray(result)) {
             return this.render_query_result_table(result);
