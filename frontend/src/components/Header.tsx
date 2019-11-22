@@ -40,6 +40,7 @@ export class Header extends React.Component {
                     <div className="links">
                         {header_links_requiring_auth}
                     </div>
+                
                 </div>
             </header>
         );

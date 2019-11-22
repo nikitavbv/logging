@@ -61,36 +61,7 @@ export class Home extends React.Component {
                 <tr>
                     {this.render_query_result_table_header(columns_arr)}
                 </tr>
-                {this.render_query_result_table_rows(columns_arr, result)}
             </table>
         )
-    }
-
-    render_query_result_table_header(columns: string[]) {
-        return columns.map(column => (<th>{column}</th>));
-    }
-
-    render_query_result_table_rows(columns: string[], data: any[]) {
-        return data.map(row => (<tr>{this.render_query_result_table_row(columns, row)}</tr>));
-    }
-
-    render_query_result_table_row(columns: string[], data: any) {
-        if (typeof data !== 'object') {
-            return (<td>{data}</td>)
-        }
-
-        return columns.map(column => (<td>{this.render_query_result_table_row_cell(data[column])}</td>));
-    }
-
-    render_query_result_table_row_cell(cell: any) {
-        if (typeof cell === 'object') {
-            return JSON.stringify(cell);
-        }
-
-        if (cell === undefined) {
-            return 'undefined';
-        }
-
-        return cell.toString();
     }
 }

@@ -19,7 +19,6 @@ export class QueryInputField extends React.Component {
         );
     }
 
-
     run_query() {
         fetch('/api/v1/query', {
             method: 'POST',
@@ -31,5 +30,33 @@ export class QueryInputField extends React.Component {
         }).then(res => res.json().then(data => {
             this.setState({ ...this.state, query_result: data });
         }))
+    }
+
+    render_query_result_table_header(columns: string[]) {
+        return columns.map(column => (<th>{column}</th>));
+    }
+
+    render_query_result_table_rows(columns: string[], data: any[]) {
+        return data.map(row => (<tr>{this.render_query_result_table_row(columns, row)}</tr>));
+    }
+
+    render_query_result_table_row(columns: string[], data: any) {
+        if (typeof data !== 'object') {
+            return (<td>{data}</td>)
+        }
+
+        return columns.map(column => (<td>{this.render_query_result_table_row_cell(data[column])}</td>));
+    }
+
+    render_query_result_table_row_cell(cell: any) {
+        if (typeof cell === 'object') {
+            return JSON.stringify(cell);
+        }
+
+        if (cell === undefined) {
+            return 'undefined';
+        }
+
+        return cell.toString();
     }
 }
