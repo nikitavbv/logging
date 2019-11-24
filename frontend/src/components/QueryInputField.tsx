@@ -6,6 +6,15 @@ type RunQueryState = {
 };
 
 export class QueryInputField extends React.Component {
+    state: RunQueryState;
+
+    constructor() {
+        super({});
+        this.state = {
+            query: '',
+            query_result: []
+        } as RunQueryState;
+    }
 
     render() {
         return (
