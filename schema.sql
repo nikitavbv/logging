@@ -34,3 +34,16 @@ alter table loggers
 create unique index loggers_id_uindex
     on loggers (id);
 
+
+create table queries
+(
+    id   uuid         not null,
+    name varchar(255) not null,
+    code text         not null
+);
+
+alter table queries
+    owner to logging_dev_user;
+
+create unique index queries_id_uindex
+    on queries (id);
