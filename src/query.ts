@@ -4,6 +4,7 @@ import { Client } from 'pg';
 
 import { HttpStream, HttpMethod, HttpRequest } from "./api";
 import { Stream } from './stream';
+import database from './database';
 
 type QueryRequest = {
     query: string,  
@@ -49,6 +50,10 @@ function run_query(database: Client, req: HttpRequest) {
         req.ok(stream);
     }
 }
+
+const save_query = async (database: Client, id: string, name: string, code: string): Promise<void> => {
+    await database.query('insert into queries (id, name, string) values ($1, $2, $3)', [id, name, code]);
+};
 
 export default (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.POST).forEach(run_query.bind({}, database));
