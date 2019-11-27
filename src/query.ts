@@ -56,5 +56,5 @@ const save_query = async (database: Client, id: string, name: string, code: stri
 };
 
 export default (stream: HttpStream, database: Client) => {
-    stream.url('/').method(HttpMethod.POST).forEach(run_query.bind({}, database));
+    stream.url('/run').method(HttpMethod.POST).forEach(run_query.bind({}, database));
 };
