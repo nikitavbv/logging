@@ -10,6 +10,11 @@ type QueryRequest = {
     query: string,  
 };
 
+type SaveQueryRequest = {
+    name: string,
+    code: string,
+};
+
 const select_service = (database: Client) => (service_name: string): Stream<any> => {
     const stream = new Stream<any>();
     database.query('SELECT service_name, hostname, timestamp, data, tag FROM log WHERE service_name = $1 ORDER BY timestamp desc', [service_name])
@@ -51,7 +56,7 @@ function run_query(database: Client, req: HttpRequest) {
     }
 }
 
-const save_query = async (database: Client, id: string, name: string, code: string): Promise<void> => {
+const save_query = (database: Client) => async (database: Client, id: string, name: string, code: string): Promise<void> => {
     await database.query('insert into queries (id, name, string) values ($1, $2, $3)', [id, name, code]);
 };
 
