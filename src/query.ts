@@ -1,6 +1,7 @@
 import vm from 'vm';
 
 import { Client } from 'pg';
+import uuid from 'uuid';
 
 import { HttpStream, HttpMethod, HttpRequest } from "./api";
 import { Stream } from './stream';
@@ -56,10 +57,17 @@ function run_query(database: Client, req: HttpRequest) {
     }
 }
 
-const save_query = (database: Client) => async (database: Client, id: string, name: string, code: string): Promise<void> => {
-    await database.query('insert into queries (id, name, string) values ($1, $2, $3)', [id, name, code]);
-};
+const save_query = async (database: Client, req: HttpRequest) => {
+    const body = req.body as SaveQueryRequest;
+    const id = uuid();
+    await database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]);
+    req.ok({
+        status: 'ok',
+        query_id: id
+    });
+}
 
 export default (stream: HttpStream, database: Client) => {
+    stream.url('/').method(HttpMethod.POST).forEach(save_query.bind({}, database));
     stream.url('/run').method(HttpMethod.POST).forEach(run_query.bind({}, database));
 };
