@@ -47,3 +47,12 @@ alter table queries
 
 create unique index queries_id_uindex
     on queries (id);
+
+create table user_queries
+(
+    user_id  uuid not null,
+    query_id uuid not null
+)
+
+alter table user_queries
+    owner to logging_dev_user;
