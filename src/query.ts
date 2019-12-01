@@ -57,6 +57,10 @@ function run_query(database: Client, req: HttpRequest) {
     }
 }
 
+const save_query_user = async (database: Client, query_id: string, user_id: string) => {
+    await database.query('insert into user_queries (query_id, user_id) values ($1, $2)', [query_id, user_id]);
+};
+
 const save_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as SaveQueryRequest;
     const id = uuid();
