@@ -63,8 +63,17 @@ const save_query_user = async (database: Client, query_id: string, user_id: stri
 
 const save_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as SaveQueryRequest;
+    if (req.auth === undefined) {
+        req.unauthorized('unauthorized');
+        return;
+    }
+    const user_id = req.auth.user_id;
+    
     const id = uuid();
-    await database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]);
+    await Promise.all([
+        database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]),
+        save_query_user(database, id, user_id);
+    ]);
     req.ok({
         status: 'ok',
         query_id: id
