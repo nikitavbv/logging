@@ -72,7 +72,7 @@ const save_query = async (database: Client, req: HttpRequest) => {
     const id = uuid();
     await Promise.all([
         database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]),
-        save_query_user(database, id, user_id);
+        save_query_user(database, id, user_id),
     ]);
     req.ok({
         status: 'ok',
