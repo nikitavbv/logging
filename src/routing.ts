@@ -13,6 +13,7 @@ import authInit from './auth';
 import logInit from './log';
 import { init as loggerInit } from './logger';
 import queryInit from './query';
+import initInit from './init';
 
 export default (database: Client): HttpStream => {
     const stream = new HttpStream();
@@ -27,7 +28,8 @@ export default (database: Client): HttpStream => {
 
     logInit(apiStream.url_prefix_stream('/log'), database);
     loggerInit(apiStream.url_prefix_stream('/logger').auth(), database);
-    queryInit(apiStream.url_prefix_stream('/query'), database);
+    initInit(apiStream.url_prefix_stream('/init').auth(), database);
+    queryInit(apiStream.url_prefix_stream('/query').auth(), database);
 
     return stream;
 };
