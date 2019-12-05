@@ -5,7 +5,6 @@ import uuid from 'uuid';
 
 import { HttpStream, HttpMethod, HttpRequest } from "./api";
 import { Stream } from './stream';
-import database from './database';
 
 type QueryRequest = {
     query: string,  
