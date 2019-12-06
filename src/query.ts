@@ -6,8 +6,8 @@ import uuid from 'uuid';
 import { HttpStream, HttpMethod, HttpRequest } from "./api";
 import { Stream } from './stream';
 
-type QueryRequest = {
-    query: string,  
+type QueryRunRequest = {
+    id: string,
 };
 
 type SaveQueryRequest = {
@@ -30,7 +30,7 @@ const select_service = (database: Client) => (service_name: string): Stream<any>
 };
 
 function run_query(database: Client, req: HttpRequest) {
-    const body = req.body as QueryRequest;
+    const body = req.body as QueryRunRequest;
 
     const query_context = {
         Object,
