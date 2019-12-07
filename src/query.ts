@@ -3,8 +3,9 @@ import vm from 'vm';
 import { Client } from 'pg';
 import uuid from 'uuid';
 
-import { HttpStream, HttpMethod, HttpRequest } from "./api";
+import { HttpStream, HttpMethod, HttpRequest } from './api';
 import { Stream } from './stream';
+import { Query } from './types';
 
 type QueryRunRequest = {
     id: string,
@@ -13,6 +14,33 @@ type QueryRunRequest = {
 type SaveQueryRequest = {
     name: string,
     code: string,
+};
+
+const save_query_user = async (database: Client, query_id: string, user_id: string) => {
+    await database.query('insert into user_queries (query_id, user_id) values ($1, $2)', [query_id, user_id]);
+};
+
+const save_query = async (database: Client, req: HttpRequest) => {
+    const body = req.body as SaveQueryRequest;
+    if (req.auth === undefined) {
+        req.unauthorized('unauthorized');
+        return;
+    }
+    const user_id = req.auth.user_id;
+    
+    const id = uuid();
+    await Promise.all([
+        database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]),
+        save_query_user(database, id, user_id),
+    ]);
+    req.ok({
+        status: 'ok',
+        query_id: id
+    });
+}
+
+const get_query_by_id = async (database: Client, query_id: string): Promise<Query> => {
+    return (await database.query('select * from queries where id = $1 limit 1', [query_id])).rows[0] as Query;
 };
 
 const select_service = (database: Client) => (service_name: string): Stream<any> => {
@@ -54,29 +82,6 @@ function run_query(database: Client, req: HttpRequest) {
     } else {
         req.ok(stream);
     }
-}
-
-const save_query_user = async (database: Client, query_id: string, user_id: string) => {
-    await database.query('insert into user_queries (query_id, user_id) values ($1, $2)', [query_id, user_id]);
-};
-
-const save_query = async (database: Client, req: HttpRequest) => {
-    const body = req.body as SaveQueryRequest;
-    if (req.auth === undefined) {
-        req.unauthorized('unauthorized');
-        return;
-    }
-    const user_id = req.auth.user_id;
-    
-    const id = uuid();
-    await Promise.all([
-        database.query('insert into queries (id, name, code) values ($1, $2, $3)', [id, body.name, body.code]),
-        save_query_user(database, id, user_id),
-    ]);
-    req.ok({
-        status: 'ok',
-        query_id: id
-    });
 }
 
 export default (stream: HttpStream, database: Client) => {
