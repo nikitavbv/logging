@@ -39,8 +39,14 @@ const save_query = async (database: Client, req: HttpRequest) => {
     });
 }
 
-const get_query_by_id = async (database: Client, query_id: string): Promise<Query> => {
-    return (await database.query('select * from queries where id = $1 limit 1', [query_id])).rows[0] as Query;
+const get_query_by_id = async (database: Client, query_id: string): Promise<Query | undefined> => {
+    const res = await database.query('select * from queries where id = $1 limit 1', [query_id]);
+
+    if (res.rowCount === 0) {
+        return undefined;
+    }
+
+    return res.rows[0] as Query;
 };
 
 const select_service = (database: Client) => (service_name: string): Stream<any> => {
@@ -57,8 +63,14 @@ const select_service = (database: Client) => (service_name: string): Stream<any>
     return stream;
 };
 
-function run_query(database: Client, req: HttpRequest) {
+const run_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as QueryRunRequest;
+    const query = await get_query_by_id(database, body.id);
+
+    if (query === undefined) {
+        req.not_found('query with this id not found');
+        return;
+    }
 
     const query_context = {
         Object,
@@ -67,7 +79,7 @@ function run_query(database: Client, req: HttpRequest) {
     };
     const result: any[] = [];
     const ctx = vm.createContext(query_context);
-    const stream = vm.runInContext(body.query, ctx);
+    const stream = vm.runInContext(query.code, ctx);
 
     console.log(stream);
 
