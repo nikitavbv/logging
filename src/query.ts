@@ -20,6 +20,12 @@ const save_query_user = async (database: Client, query_id: string, user_id: stri
     await database.query('insert into user_queries (query_id, user_id) values ($1, $2)', [query_id, user_id]);
 };
 
+const get_query_users = async (database: Client, query_id: string): Promise<string[]> => {
+    return (
+        await database.query('select user_id from user_queries where query_id = $1', [ query_id ])
+    ).rows.map(row => row[0] as string);
+};
+
 const save_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as SaveQueryRequest;
     if (req.auth === undefined) {
