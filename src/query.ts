@@ -73,6 +73,13 @@ const run_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as QueryRunRequest;
     const query = await get_query_by_id(database, body.id);
 
+    const users = await get_query_users(database, body.id);
+
+    if (req.auth === undefined || !users.indexOf(req.auth.user_id)) {
+        req.unauthorized('unauthorized');
+        return;
+    }
+
     if (query === undefined) {
         req.not_found('query with this id not found');
         return;
