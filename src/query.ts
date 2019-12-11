@@ -69,6 +69,19 @@ const update_query = async (database: Client, req: HttpRequest) => {
     req.ok({});
 }
 
+const delete_query = async (database: Client, req: HttpRequest) => {
+    if (req.auth === undefined) {
+        req.unauthorized('unauthorized');
+        return;
+    }
+    
+    const query_id = req.body.query_id;
+
+    await database.query('delete from queries where id = $1', [ query_id ]);
+
+    req.ok({});
+};
+
 const get_query_by_id = async (database: Client, query_id: string): Promise<Query | undefined> => {
     const res = await database.query('select * from queries where id = $1 limit 1', [query_id]);
 
@@ -137,4 +150,5 @@ export default (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.POST).forEach(save_query.bind({}, database));
     stream.url('/run').method(HttpMethod.POST).forEach(run_query.bind({}, database));
     stream.url('/update').method(HttpMethod.POST).forEach(update_query.bind({}, database));
+    stream.url('/delete').method(HttpMethod.POST).forEach(delete_query.bind({}, database));
 };
