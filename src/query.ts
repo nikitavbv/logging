@@ -26,12 +26,11 @@ const get_query_users = async (database: Client, query_id: string): Promise<stri
     ).rows.map(row => row[0] as string);
 };
 
-
-const delete_query = async (database: Client, query_id: string) => {
+/*const delete_query = async (database: Client, query_id: string) => {
     return (
-        await database.query('delete from queries where id = $1', [ query_id ]),
+        await database.query('delete from queries where id = $1', [ query_id ])
     );
-};
+};*/
 
 const save_query = async (database: Client, req: HttpRequest) => {
     const body = req.body as SaveQueryRequest;
