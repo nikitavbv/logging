@@ -75,11 +75,27 @@ const delete_logger = async (database: Client, req: HttpRequest) => {
     req.ok({});
 };
 
+const update_logger = async (database: Client, req: HttpRequest) => {
+    if (req.auth === undefined) {
+        throw new AssertionError({ message: 'auth is expected' });
+    }
+
+    const logger_id = req.url;
+
+    if (req.body.name !== undefined) {
+        await database.query('update loggers set name = $1 where id = $2', [ req.body.name, logger_id ]);
+    }
+
+    req.ok({});
+};
+
 const init = (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.GET).forEach(get_loggers.bind(logging_context, database));
     stream.url('/').method(HttpMethod.POST).forEach(create_logger.bind(logging_context, database));
     stream.url_prefix_stream('/').method(HttpMethod.DELETE)
         .filter(r => r.url.indexOf('/') === -1).forEach(delete_logger.bind(logging_context, database));
+    stream.url_prefix_stream('/').filter(r => r.url.length > 1 && r.url.indexOf('/') === -1)
+        .forEach(update_logger.bind(logging_context, database));
 
     // user access
     stream.url('/user/add').method(HttpMethod.POST).forEach(add_user.bind(logging_context, database));
