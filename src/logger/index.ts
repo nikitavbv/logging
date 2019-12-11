@@ -60,9 +60,26 @@ const create_logger = async (database: Client, req: HttpRequest) => {
     });
 };
 
+const delete_logger = async (database: Client, req: HttpRequest) => {
+    if (req.auth === undefined) {
+        throw new AssertionError({ message: 'auth is expected' });
+    }
+
+    const logger_id = req.url;
+
+    await Promise.all([
+        database.query('delete from loggers where id = $1', [ logger_id ]),
+        database.query('delete from logger_access where logger = $1', [ logger_id ])
+    ]);
+
+    req.ok({});
+};
+
 const init = (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.GET).forEach(get_loggers.bind(logging_context, database));
     stream.url('/').method(HttpMethod.POST).forEach(create_logger.bind(logging_context, database));
+    stream.url_prefix_stream('/').method(HttpMethod.DELETE)
+        .filter(r => r.url.indexOf('/') === -1).forEach(delete_logger.bind(logging_context, database));
 
     // user access
     stream.url('/user/add').method(HttpMethod.POST).forEach(add_user.bind(logging_context, database));
