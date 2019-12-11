@@ -86,6 +86,10 @@ const update_logger = async (database: Client, req: HttpRequest) => {
         await database.query('update loggers set name = $1 where id = $2', [ req.body.name, logger_id ]);
     }
 
+    if (req.body.retention !== undefined) {
+        await database.query('update loggers set retention = $1 where id = $2', [ req.body.retention, logger_id ]);
+    }
+
     req.ok({});
 };
 

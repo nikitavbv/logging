@@ -73,13 +73,19 @@ const get_logger_id_by_api_key = async (database: Client, api_key: string): Prom
     return (res.rows[0]['id'] as string);
 }
 
-const process_log_ingress = async (database: Client, logger_id: string, message: LogIngressMessage) => {
-    await Promise.all(message.entries.map(entry => save_log_entry(database, logger_id, entry)));
+const get_logger_retention = async (database: Client, logger_id: string): Promise<number> => {
+    return (await database.query('select retention from loggers where id = $1', [ logger_id ])).rows[0].retention as number * 60 * 60;
 };
 
-const save_log_entry = async (database: Client, logger_id: string, entry: LogIngressEntry) => {
+const process_log_ingress = async (database: Client, logger_id: string, message: LogIngressMessage) => {
+    const retention = await get_logger_retention(database, logger_id);
+
+    await Promise.all(message.entries.map(entry => save_log_entry(database, logger_id, entry, retention)));
+};
+
+const save_log_entry = async (database: Client, logger_id: string, entry: LogIngressEntry, retention: number) => {
     await database.query(
-        'INSERT INTO log (logger, service_name, hostname, timestamp, data, tag) VALUES ($1, $2, $3, $4, $5, $6)',
-        [logger_id, entry.service_name, entry.hostname, entry.timestamp, JSON.stringify(entry.data), entry.tag]
+        'INSERT INTO log (logger, service_name, hostname, timestamp, data, tag, delete_at) VALUES ($1, $2, $3, $4, $5, $6, current_timestamp + $7)',
+        [logger_id, entry.service_name, entry.hostname, entry.timestamp, JSON.stringify(entry.data), entry.tag, retention]
     ).catch(e => console.error('failed to save log to database:', e));
 }
