@@ -5,7 +5,7 @@ import { Client } from 'pg';
 import crypto from 'crypto';
 
 import { HttpStream, HttpMethod, HttpRequest } from "../api";
-import { add_user } from './user';
+import { add_user, remove_user } from './user';
 
 const logging_context = {};
 
@@ -99,6 +99,7 @@ const init = (stream: HttpStream, database: Client) => {
 
     // user access
     stream.url('/user/add').method(HttpMethod.POST).forEach(add_user.bind(logging_context, database));
+    stream.url('/user/remove').method(HttpMethod.POST).forEach(remove_user.bind(logging_context, database));
 };
 
 export {
