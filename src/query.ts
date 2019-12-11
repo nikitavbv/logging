@@ -51,6 +51,24 @@ const save_query = async (database: Client, req: HttpRequest) => {
     });
 }
 
+const update_query = async (database: Client, req: HttpRequest) => {
+    if (req.auth === undefined) {
+        req.unauthorized('unauthorized');
+        return;
+    }
+    const query_id = req.body.query_id;
+
+    if (req.body.name) {
+        await database.query('update queries set name = $1 where id = $2', [ req.body.name, query_id ]);
+    }
+
+    if (req.body.c0de) {
+        await database.query('update queries set code = $1 where id = $2', [ req.body.code, query_id ]);
+    }
+
+    req.ok({});
+}
+
 const get_query_by_id = async (database: Client, query_id: string): Promise<Query | undefined> => {
     const res = await database.query('select * from queries where id = $1 limit 1', [query_id]);
 
@@ -118,4 +136,5 @@ const run_query = async (database: Client, req: HttpRequest) => {
 export default (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.POST).forEach(save_query.bind({}, database));
     stream.url('/run').method(HttpMethod.POST).forEach(run_query.bind({}, database));
+    stream.url('/update').method(HttpMethod.POST).forEach(update_query.bind({}, database));
 };
