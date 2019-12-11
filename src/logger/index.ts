@@ -4,7 +4,8 @@ import uuid from 'uuid';
 import { Client } from 'pg';
 import crypto from 'crypto';
 
-import { HttpStream, HttpMethod, HttpRequest } from "./api";
+import { HttpStream, HttpMethod, HttpRequest } from "../api";
+import { add_user } from './user';
 
 const logging_context = {};
 
@@ -62,6 +63,9 @@ const create_logger = async (database: Client, req: HttpRequest) => {
 const init = (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.GET).forEach(get_loggers.bind(logging_context, database));
     stream.url('/').method(HttpMethod.POST).forEach(create_logger.bind(logging_context, database));
+
+    // user access
+    stream.url('/user/add').method(HttpMethod.POST).forEach(add_user.bind(logging_context, database));
 };
 
 export {
