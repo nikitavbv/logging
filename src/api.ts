@@ -28,6 +28,7 @@ export enum HttpMethod {
     POST,
     PUT,
     DELETE,
+    OPTIONS,
 }
 
 export enum HttpStatus {
@@ -40,6 +41,11 @@ export enum HttpStatus {
 export type HttpResponseHeaders = http.OutgoingHttpHeaders;
 
 export type Cookies = any;
+
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+};
 
 export class HttpStream extends Stream<HttpRequest> {
 
@@ -93,6 +99,8 @@ function get_method(name: string): HttpMethod | undefined {
             return HttpMethod.PUT;
         case 'delete':
             return HttpMethod.DELETE;
+        case 'options':
+            return HttpMethod.OPTIONS;    
         default:
             return undefined;
     }
@@ -146,7 +154,7 @@ export const to_http_request = async (req: http.IncomingMessage, res: http.Serve
     const cookies = req.headers.cookie !== undefined ? parse_cookie(req.headers.cookie as string) : undefined;
     
     const callback = (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => {
-        res.writeHead(http_status_to_code(status), headers);
+        res.writeHead(http_status_to_code(status), { ...CORS_HEADERS, ...headers});
 
         if (typeof body !== 'string' && !Buffer.isBuffer(body)) {
             body = JSON.stringify(body);

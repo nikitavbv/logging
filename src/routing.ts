@@ -17,6 +17,12 @@ import initInit from './init';
 
 export default (database: Client): HttpStream => {
     const stream = new HttpStream();
+
+    stream.method(HttpMethod.OPTIONS).forEach(r => r.ok({}, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+    }));
+
     stream
         .filter(url_not_starting_with('/api/v1'))
         .forEach(serve_static(config.static_dir, '/'));
