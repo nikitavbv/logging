@@ -2,14 +2,33 @@ import { HttpStream, HttpMethod, HttpRequest } from './api';
 import { Client } from 'pg';
 import { Query, QueryID } from './types';
 
-const get_user_queries = async (database: Client, user_id: string): Promise<QueryID[]> => {
-    const result = await database.query('select query_id from user_queries WHERE user_id = ?', [ user_id ]);
-    return result.rows.map(r => r[0] as QueryID);
+type UserLogger = {
+    logger: string,
+};
+
+type UserQuery = { query_id: QueryID; starred: boolean };
+
+type Logger = {
+};
+
+const get_user_queries = async (database: Client, user_id: string): Promise<UserQuery[]> => {
+    const result = await database.query('select * from user_queries WHERE user_id = $1', [ user_id ]);
+    return result.rows as UserQuery[];
+};
+
+const get_user_loggers = async (database: Client, user_id: string): Promise<UserLogger[]> => {
+    const result = await database.query('select * from logger_access WHERE "user" = $1', [ user_id ]);
+    return result.rows as UserLogger[];
 };
 
 const get_user_query = async (database: Client, query_id: string): Promise<Query[]> => {
     return (await database.query('select * from queries where id = $1', [ query_id ]))
         .rows.map(r => r as Query);
+};
+
+const get_user_logger = async (database: Client, logger_id: string): Promise<Logger[]> => {
+    return (await database.query('select id, name, retention from loggers where id = $1', [ logger_id ]))
+        .rows.map(r => r as Logger);
 };
 
 const init_handler = async (database: Client, req: HttpRequest) => {
@@ -19,11 +38,16 @@ const init_handler = async (database: Client, req: HttpRequest) => {
     }
 
     const user_queries = await get_user_queries(database, req.auth.user_id);
-    const queries = await Promise.all(user_queries.map(query => get_user_query(database, query)));
+    const user_loggers = await get_user_loggers(database, req.auth.user_id);
+    const queries = await Promise.all(user_queries.map(query => get_user_query(database, query.query_id)));
+    const loggers = await Promise.all(user_loggers.map(logger => get_user_logger(database, logger.logger)));
 
     req.ok({ 
         'status': 'ok',
-        'queries': queries,
+        user_queries,
+        queries,
+        user_loggers,
+        loggers,
     });
 };
 
