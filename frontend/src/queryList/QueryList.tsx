@@ -4,11 +4,17 @@ import { NewQueryCreator } from './components/NewQueryCreator';
 import { Query } from '../types/query';
 import { QueryEntry } from './components/QueryEntry';
 
+type UserQuery = {
+    query_id: string,
+    starred: boolean,
+};
+
 export const QueryList = () => {
     const [ creatingNewQuery, updateCreatingNewQuery ] = useState(false);
     const [ queries, updateQueries ] = useState([] as Query[]);
-    
-    useEffect(() => doInit(updateQueries), []);
+    const [ userQueries, updateUserQueries ] = useState([] as UserQuery[]);
+
+    useEffect(() => doInit(updateQueries, updateUserQueries), []);
 
     return (
         <div style={{
@@ -30,14 +36,24 @@ export const QueryList = () => {
             
             { queries.map(query => <QueryEntry query={query} onDeleted={() => {
                 updateQueries(queries.filter(entry => entry.id !== query.id))
-            }} />) }
+            }} isStarred={isStarred(query.id, userQueries)} updateStarred={v => setStarred(query.id, v, userQueries, updateUserQueries)} />) }
         </div>
     );
 };
 
-const doInit = (updateQueries: (queries: Query[]) => void) => {
+const doInit = (updateQueries: (queries: Query[]) => void, updateUserQueries: (q: UserQuery[]) => void) => {
     api_request('init', 'GET').then(res => {
-        updateQueries(res.body.queries.map((r: any) => r[0]).filter((r: any) => r !== undefined));
+        const queries = res.body.queries.map((r: any) => r[0]).filter((r: any) => r !== undefined);
+
+        updateQueries(queries.sort((a: any, b: any) => {
+
+            if (isStarred(a.id, queries) && !isStarred(b.id, queries)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }));
+        updateUserQueries(res.body.user_queries);
     });
 };
 
@@ -47,4 +63,24 @@ const createNewQuery = (name: string, queries: Query[], updateQueries: (queries:
     api_request('query', 'POST', { name, code }).then(res => {
         updateQueries([ ...queries, { name, code, id: res.body.query_id as string } as Query]);
     });
+};
+
+const isStarred = (queryId: string, userQueries: UserQuery[]) => {    
+    for (let query of userQueries) {
+        if (query.query_id == queryId) {
+            return query.starred;
+        }
+    }
+
+    return false;
+};
+
+const setStarred = (queryId: string, v: boolean, userQueries: UserQuery[], updateQueries: (v: UserQuery[]) => void) => {
+    updateQueries(userQueries.map(entry => {
+        if (entry.query_id === queryId) {
+            return { ...entry, starred: v };
+        } else {
+            return entry;
+        }
+    }));
 };
