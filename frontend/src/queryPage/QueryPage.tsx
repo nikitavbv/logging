@@ -28,7 +28,11 @@ export const QueryPage = (props: QueryPageProps) => {
             }} onChange={v => updateCode(v.currentTarget.value)} />
             <button style={{
                 borderRadius: 0,
-            }}>Run</button>
+            }} onClick={
+                () => {
+                    runQuery(props.match.params.queryId, code);
+                }
+            }>Run</button>
         </div>
     );
 };
@@ -42,4 +46,8 @@ const loadQueryCode = (queryId: string, updateCode: (code: string) => void) => {
             }
         }
     });
+};
+
+const runQuery = (query_id: string, code: string) => {
+    api_request('query/update', 'POST', { query_id, code });
 };

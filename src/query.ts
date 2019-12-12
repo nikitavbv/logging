@@ -62,7 +62,7 @@ const update_query = async (database: Client, req: HttpRequest) => {
         await database.query('update queries set name = $1 where id = $2', [ req.body.name, query_id ]);
     }
 
-    if (req.body.c0de) {
+    if (req.body.code) {
         await database.query('update queries set code = $1 where id = $2', [ req.body.code, query_id ]);
     }
 
