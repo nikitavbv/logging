@@ -11,6 +11,7 @@ export class HttpRequest {
         public method: HttpMethod,
         public body: HttpBody,
         public cookies: Cookies,
+        public headers: HttpRequestHeaders,
         public callback: (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => void,
         public auth?: AuthInfo,
     ) {}
@@ -41,6 +42,8 @@ export enum HttpStatus {
 export type HttpResponseHeaders = http.OutgoingHttpHeaders;
 
 export type Cookies = any;
+
+export type HttpRequestHeaders = http.IncomingHttpHeaders;
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -153,6 +156,8 @@ export const to_http_request = async (req: http.IncomingMessage, res: http.Serve
 
     const cookies = req.headers.cookie !== undefined ? parse_cookie(req.headers.cookie as string) : undefined;
     
+    const headers = req.headers;
+
     const callback = (status: HttpStatus, headers: HttpResponseHeaders, body: HttpBody) => {
         res.writeHead(http_status_to_code(status), { ...CORS_HEADERS, ...headers});
 
@@ -163,7 +168,7 @@ export const to_http_request = async (req: http.IncomingMessage, res: http.Serve
         res.end(body);
     };
 
-    return new HttpRequest(path, method, body, cookies, callback);
+    return new HttpRequest(path, method, body, cookies, headers, callback);
 }
 
 export const url_starting_with = (prefix: string) => (req: HttpRequest): boolean =>
@@ -173,7 +178,7 @@ export const url_not_starting_with = (prefix: string) => (req: HttpRequest): boo
     !req.url.startsWith(prefix);
 
 export const strip_url_prefix = (prefix: string) => (req: HttpRequest): HttpRequest =>
-    new HttpRequest(req.url.replace(prefix, ''), req.method, req.body, req.cookies, req.callback, req.auth);
+    new HttpRequest(req.url.replace(prefix, ''), req.method, req.body, req.cookies, req.headers, req.callback, req.auth);
 
 const parse_cookie = (cookie: string): Cookies => {
     const cookies: Cookies = {};

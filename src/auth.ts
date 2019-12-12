@@ -71,49 +71,41 @@ async function decode_jwt_token(token: string): Promise<Token> {
 }
 
 export const filter_authorization = async (req: HttpRequest): Promise<boolean> => {
-    if (req.cookies === undefined) {
-        req.unauthorized({ 'status': 'unauthorized'});
-        return false;
-    }
-   
-    const auth_cookie = req.cookies.auth;
+    const auth_cookie = req.headers['x-api-token'] as string;
     if (auth_cookie === undefined) {
         req.unauthorized({ 'status': 'unauthorized '});
         return false;
     }
 
-    if (req.cookies.auth === 'master') {
+    if (auth_cookie === 'master') {
         return true;
     }
 
     try {
-        await decode_jwt_token(req.cookies.auth);
+        await decode_jwt_token(auth_cookie);
         return true;
     } catch(e) {
-        req.unauthorized({ 'status': 'unauthrozied' }, {
-            'Set-Cookie': `auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        });
+        req.unauthorized({ 'status': 'unauthrozied' });
         return false;
     }
 };
 
 export const map_authorization = async (req: HttpRequest): Promise<HttpRequest> => {
-    const token = req.cookies.auth === 'master' ? { user_id: 'nikitavbv+master@gmail.com' } : await decode_jwt_token(req.cookies.auth);
+    const tokenHeader = req.headers['x-api-token'] as string;
+    const token = tokenHeader === 'master' ? { user_id: 'nikitavbv+master@gmail.com' } : await decode_jwt_token(tokenHeader);
 
     const authInfo = <AuthInfo> {
         user_id: token.user_id,
     };
 
-    return new HttpRequest(req.url, req.method, req.body, req.cookies, req.callback, authInfo);
+    return new HttpRequest(req.url, req.method, req.body, req.cookies, req.headers, req.callback, authInfo);
 };
 
 async function do_auth(req: HttpRequest) {
     const body: AuthRequest = req.body as AuthRequest;
     const account_info = await get_account_info_by_token(body.access_token);
     const token = await generate_jwt_token(account_info);
-    req.ok({ status: 'ok' }, {
-        'Set-Cookie': `auth=${token}`,
-    });
+    req.ok({ status: 'ok', token });
 }
 
 async function logout(req: HttpRequest) {

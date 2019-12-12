@@ -1,4 +1,5 @@
 import React from "react";
+import { api_request } from "../api/v2";
 
 type AuthProps = {
     loadGapi: () => Promise<void>
@@ -66,15 +67,9 @@ export class Auth extends React.Component<AuthProps> {
     }
 
     sendTokenToBackend(access_token: string) {
-        fetch('/api/v1/auth', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                access_token
-            })
-        }).then(() => window.location.href = '/home');
+        api_request('auth', 'POST', { access_token }).then(res => {
+            localStorage.authToken = res.body.token;
+            window.location.href = '/';
+        });
     }
 }
