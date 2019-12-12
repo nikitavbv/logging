@@ -14,7 +14,7 @@ type QueryEntryProps = {
 export const QueryEntry = (props: QueryEntryProps) => {
     const [ isExpanded, updateIsExpanded ] = useState(false);
     const [ name, updateQueryName ] = useState(props.query.name);
-
+    
     return (
         <div style={{
             borderTop: '1px solid rgba(0, 0, 0, 0.1)',
@@ -37,6 +37,32 @@ export const QueryEntry = (props: QueryEntryProps) => {
 };
 
 export const ExpandedQueryInfo = (props: QueryEntryProps) => {
+    const [ isRenaming, updateIsRenaming ] = useState(false);
+
+    const [ name, updateName ] = useState(props.query.name);
+
+    const renameCtl = isRenaming ? (
+        <span>
+            <input value={ name } onChange={ v => {
+                updateName(v.currentTarget.value)
+            } } />
+            <button style={{ marginLeft: '10px' }} onClick={ () => {
+                updateIsRenaming(false);
+                if (props.updateName) {
+                    props.updateName(name);
+                }
+                updateQueryNameAPICall(props.query.id, name);
+            } }>Save</button>
+        </span>
+    ) : (
+        <span>
+            <Clickable onClick={updateIsRenaming.bind({}, true)}>
+                rename
+            </Clickable>
+        </span>
+    );
+
+
     return (
         <div>
             <div style={{ marginTop: '10px' }}>
@@ -55,6 +81,9 @@ export const ExpandedQueryInfo = (props: QueryEntryProps) => {
                         }
                     }}>star</Clickable>
                 ) }
+            </div>
+            <div style={{ marginTop: '10px' }}>
+                { renameCtl }
             </div>
             <div style={{ marginTop: '10px' }}>
                 <Clickable onClick={() => {
@@ -76,4 +105,8 @@ const starQueryAPICall = (query_id: string) => {
 
 const unstarQueryAPICall = (query_id: string) => {
     api_request('query/unstar', 'POST', { query_id });
+};
+
+const updateQueryNameAPICall = (query_id: string, name: string) => {
+    api_request('query/update', 'POST', { query_id, name });
 };
