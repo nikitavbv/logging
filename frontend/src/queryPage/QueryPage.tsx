@@ -16,6 +16,22 @@ export const QueryPage = (props: QueryPageProps) => {
         loadQueryCode(props.match.params.queryId, updateCode);
     }, []);
 
+    useEffect(() => {
+        console.log('let connect');
+        const socket = new WebSocket('ws://localhost:8080', 'logging');
+        socket.onopen = () => {
+            console.log('connected');
+            socket.send(JSON.stringify({
+                'action': 'query',
+                'code': "service('demo_ws').map(r => r.data.hello || r.data.foo)",
+            }));
+        };
+
+        socket.onmessage = msg => {
+            console.log('a', JSON.parse(msg.data));
+        };
+    }, []);
+
     return (
         <div style={{
             display: 'flex',
