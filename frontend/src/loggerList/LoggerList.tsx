@@ -35,7 +35,7 @@ export const LoggerList = () => {
 
 const createLogger = (name: string, loggers: Logger[], updateLoggers: (newLoggers: Logger[]) => void, updateNewLoggerAPIKey: (apiKey: string) => void, updateCreatingNewLogger: (creatingNewLogger: boolean) => void) => {
     api_request('logger', 'POST', { name }).then(res => {
-        updateLoggers([ ...loggers, { name, id: res.body.logger_id }]);
+        updateLoggers([ ...loggers, { name, id: res.body.logger_id, retention: 144 }]);
         updateNewLoggerAPIKey(res.body.api_key);
         updateCreatingNewLogger(false);
     });
