@@ -23,7 +23,10 @@ export const QueryList = () => {
                 <h1 style={{ display: 'inline-block' }}>Queries</h1>
                 { !creatingNewQuery ? (<button style={{ width: '40px', margin: '0 8px' }} onClick={updateCreatingNewQuery.bind({}, true)}>+</button>) : undefined }
             </div>
-            { creatingNewQuery ? <NewQueryCreator onQueryNameSelected={name => createNewQuery(name, queries, updateQueries) } /> : undefined }
+            { creatingNewQuery ? <NewQueryCreator onQueryNameSelected={name => {
+                createNewQuery(name, queries, updateQueries);
+                updateCreatingNewQuery(false);
+            } } /> : undefined }
             
             { queries.map(query => <QueryEntry query={query} onDeleted={() => {
                 updateQueries(queries.filter(entry => entry.id !== query.id))
@@ -34,7 +37,7 @@ export const QueryList = () => {
 
 const doInit = (updateQueries: (queries: Query[]) => void) => {
     api_request('init', 'GET').then(res => {
-        updateQueries(res.body.queries.map((r: any) => r[0]));
+        updateQueries(res.body.queries.map((r: any) => r[0]).filter((r: any) => r !== undefined));
     });
 };
 

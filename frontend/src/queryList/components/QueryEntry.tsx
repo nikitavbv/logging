@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Query } from '../../types/query';
+import { Clickable } from '../../components/Clickable';
+import { api_request } from '../../api/v2';
 
 type QueryEntryProps = {
     query: Query,
@@ -30,7 +32,16 @@ export const QueryEntry = (props: QueryEntryProps) => {
 export const ExpandedQueryInfo = (props: QueryEntryProps) => {
     return (
         <div>
-            query: { props.query.name }
+            <div style={{ marginTop: '10px' }}>
+                <Clickable onClick={() => {
+                    deleteQueryAPICall(props.query.id);
+                    props.onDeleted();
+                }}>delete</Clickable>
+            </div>
         </div>
     )
+};
+
+const deleteQueryAPICall = (query_id: string) => {
+    api_request('query/delete', 'POST', { query_id });
 };
