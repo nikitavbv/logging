@@ -84,7 +84,10 @@ export const ExpandedLoggerInfo = (props: LoggerEntryProps) => {
                     users.map(user => {
                         return (
                             <div>
-                                { user.user }
+                                { user.user } (<Clickable onClick={() => {
+                                    updateUsers(users.filter(u => user.user !== u.user));
+                                    removeUserAPICall(props.logger.id, user.user);
+                                }}>remove</Clickable>)
                             </div>
                         )
                     })
@@ -102,4 +105,8 @@ const updateRetentionAPICall = (logger_id: string, retention: number) => {
 
 const addUserAPICall = (logger_id: string, email: string) => {
     api_request('logger/user/add', 'POST', { logger_id, email });
+};
+
+const removeUserAPICall = (logger_id: string, email: string) => {
+    api_request('logger/user/remove', 'POST', { logger_id, email });
 };
