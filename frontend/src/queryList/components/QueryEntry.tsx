@@ -66,6 +66,11 @@ export const ExpandedQueryInfo = (props: QueryEntryProps) => {
     return (
         <div>
             <div style={{ marginTop: '10px' }}>
+                <Clickable onClick={() => {
+                    window.location.href = `/query/${props.query.id}`
+                }}>view</Clickable>
+            </div>
+            <div style={{ marginTop: '10px' }}>
                 { props.isStarred ? (
                     <Clickable onClick={() => {
                         unstarQueryAPICall(props.query.id);

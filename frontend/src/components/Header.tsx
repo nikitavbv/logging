@@ -22,7 +22,6 @@ export class Header extends React.Component {
     render() {
         const header_links_requiring_auth = is_authenticated() ? (
             <div className="user-links">
-                <a href="/loggers">Loggers</a>
                 <button onClick={log_out.bind(this, this)}>Log out</button>
             </div>
         ) : (

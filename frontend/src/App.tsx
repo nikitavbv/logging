@@ -9,6 +9,7 @@ import { Loggers } from './loggers';
 import { Header } from './components';
 
 import './App.css';
+import { QueryPage } from './queryPage/QueryPage';
 
 const is_authenticated = () => localStorage.getItem('authenticated') != null;
 
@@ -36,6 +37,7 @@ export class App extends React.Component {
               <Route path="/" exact component={Home} />
               <Route path="/auth" render={() => <Auth loadGapi={loadGapi} />} />
               <Route path="/loggers" exact component={Loggers} onEnter={require_auth} />
+              <Route path="/query/:queryId" component={QueryPage} />
             </main>
           </div>
       </Router>
