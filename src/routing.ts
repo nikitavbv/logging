@@ -21,6 +21,7 @@ export default (database: Client): HttpStream => {
     stream.method(HttpMethod.OPTIONS).forEach(r => r.ok({}, {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Methods': '*',
     }));
 
     stream

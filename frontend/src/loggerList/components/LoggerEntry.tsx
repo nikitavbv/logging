@@ -6,10 +6,13 @@ import { api_request } from '../../api/v2';
 
 type LoggerEntryProps = {
     logger: Logger,
+    onDeleted: () => void,
+    updateName?: (name: string) => void,
 };
 
 export const LoggerEntry = (props: LoggerEntryProps) => {
     const [ isExpanded, updateIsExpanded ] = useState(false);
+    const [ name, updateLoggerName ] = useState(props.logger.name);
 
     return (
         <div style={{
@@ -20,9 +23,9 @@ export const LoggerEntry = (props: LoggerEntryProps) => {
             <span style={{
                 fontSize: '16pt',
                 cursor: 'pointer',
-            }} onClick={ () => updateIsExpanded(!isExpanded) }>{ props.logger.name }</span>
+            }} onClick={ () => updateIsExpanded(!isExpanded) }>{ name }</span>
 
-            { isExpanded ? <ExpandedLoggerInfo logger={props.logger} /> : undefined }
+            { isExpanded ? <ExpandedLoggerInfo logger={props.logger} onDeleted={props.onDeleted} updateName={updateLoggerName} /> : undefined }
         </div>
     );
 };
@@ -34,6 +37,9 @@ export const ExpandedLoggerInfo = (props: LoggerEntryProps) => {
     const [ users, updateUsers ] = useState([] as any[]);
     const [ isAddingUser, updateIsAddingUser ] = useState(false);
     const [ newUserEmail, updateNewUserEmail ] = useState('');
+
+    const [ isRenaming, updateIsRenaming ] = useState(false);
+    const [ loggerName, updateLoggerName ] = useState(props.logger.name);
 
     useEffect(() => {
         api_request(`logger/user/${props.logger.id}`, 'GET').then(res => {
@@ -69,6 +75,27 @@ export const ExpandedLoggerInfo = (props: LoggerEntryProps) => {
             <Clickable onClick={ () => updateIsAddingUser(true) }>add new</Clickable>
         </span>
     );
+
+    const renameCtl = isRenaming ? (
+        <span>
+            <input value={ loggerName } onChange={ v => {
+                updateLoggerName(v.currentTarget.value);
+            }} />
+            <button style={{ marginLeft: '10px' }} onClick={ () => {
+                updateIsRenaming(false);
+                if (props.updateName) {
+                    props.updateName(loggerName);
+                }
+                updateLoggerNameAPICall(props.logger.id, loggerName);
+            }}>Save</button>
+        </span>
+    ) : (
+        <span>
+            <Clickable onClick={updateIsRenaming.bind({}, true)}>
+                rename
+            </Clickable>
+        </span>
+    );
     
     return (
         <div>
@@ -78,7 +105,18 @@ export const ExpandedLoggerInfo = (props: LoggerEntryProps) => {
                 retention: { retentionCtl }
             </div>
 
-            <div>
+            <div style={{ marginTop: '10px' }}>
+                { renameCtl }
+            </div>
+
+            <div style={{ marginTop: '10px' }} >
+                <Clickable onClick={() => {
+                    deleteLoggerAPICall(props.logger.id);
+                    props.onDeleted();
+                }}>delete</Clickable>
+            </div>
+
+            <div style={{ marginTop: '10px' }}>
                 Users:
                 { 
                     users.map(user => {
@@ -109,4 +147,12 @@ const addUserAPICall = (logger_id: string, email: string) => {
 
 const removeUserAPICall = (logger_id: string, email: string) => {
     api_request('logger/user/remove', 'POST', { logger_id, email });
+};
+
+const deleteLoggerAPICall = (logger_id: string) => {
+    api_request(`logger/${logger_id}`, 'DELETE');
+};
+
+const updateLoggerNameAPICall = (logger_id: string, name: string) => {
+    api_request(`logger/${logger_id}`, 'POST', { name });
 };

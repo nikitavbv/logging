@@ -110,7 +110,7 @@ const init = (stream: HttpStream, database: Client) => {
     stream.url('/').method(HttpMethod.POST).forEach(create_logger.bind(logging_context, database));
     stream.url_prefix_stream('/').method(HttpMethod.DELETE)
         .filter(r => r.url.indexOf('/') === -1).forEach(delete_logger.bind(logging_context, database));
-    stream.url_prefix_stream('/').filter(r => r.url.length > 1 && r.url.indexOf('/') === -1)
+    stream.url_prefix_stream('/').method(HttpMethod.POST).filter(r => r.url.length > 1 && r.url.indexOf('/') === -1)
         .forEach(update_logger.bind(logging_context, database));
 
     // user access

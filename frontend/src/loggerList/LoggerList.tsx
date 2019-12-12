@@ -28,7 +28,9 @@ export const LoggerList = () => {
             { creatingNewLogger ? <NewLoggerCreator onLoggerNameSelected={name => createLogger(name, loggers, updateLoggers, updateNewLoggerAPIKey, updateCreatingNewLogger)} /> : undefined }
             { newLoggerAPIKey ? <APIKeyDisplay apiKey={newLoggerAPIKey} onHide={() => updateNewLoggerAPIKey('')} /> : undefined }
 
-            { loggers.map(logger => <LoggerEntry logger={logger} />) }
+            { loggers.map(logger => <LoggerEntry logger={logger} onDeleted={() => {
+                updateLoggers(loggers.filter(entry => entry.id !== logger.id))
+            }} />) }
         </div>
     );
 };
