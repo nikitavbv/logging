@@ -1,4 +1,5 @@
 import { client, IMessage, connection } from 'websocket';
+import { readFileSync } from 'fs';
 
 const ws = new client();
 
@@ -15,7 +16,7 @@ ws.on('connect', (connection) => {
     }));
 });
 
-const sendLogEntries = (connection: connection) => {
+/*const sendLogEntries = (connection: connection) => {
     connection.send(JSON.stringify({
         action: 'log',
         entries: [{
@@ -32,6 +33,31 @@ const sendLogEntries = (connection: connection) => {
             data: { 'hello': 'world' },
         }]
     }));
+};*/
+
+const sendLogEntries = (connection: connection) => {
+    const f = readFileSync('weblog.csv').toString();
+    const data = f.split('\n').map(line => line.split(',')).map(line => ({
+        service_name: 'weblog',
+        hostname: 'online_judge_server',
+        timestamp: new Date().toISOString(),
+        tag: 'info',
+        data: {
+            source: line[0],
+            timestamp: line[1],
+            httpEvent: line[2],
+            responseCode: line[3]
+        }
+    }));
+
+    for (let i = 0; i < data.length; i++) {
+        setTimeout(() => {
+            connection.send(JSON.stringify({
+                action: 'log',
+                entries: [ data[i] ]
+            }))
+        }, i * 400);
+    }
 };
 
 ws.connect('ws://localhost:8080', 'logging');

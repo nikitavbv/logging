@@ -137,11 +137,10 @@ const run_query = async (database: Client, connection: connection, code: string)
             }));
         });
     } else if(stream.get) {
-        setTimeout(() => console.log(stream.get()), 2000);
-        setTimeout(() => connection.send(JSON.stringify({
+        stream.map((v: any) => connection.send(JSON.stringify({
             action: 'result.single',
-            item: stream.get(),
-        })), 2000);
+            item: v,
+        })));
     } else {
         connection.send(JSON.stringify({
             action: 'result.single',
