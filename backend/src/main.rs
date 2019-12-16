@@ -1,5 +1,7 @@
 #[macro_use] extern crate mozjs;
 
+use actix_web::{web, App, HttpServer, Responder};
+
 use mozjs::jsapi::CompartmentOptions;
 use mozjs::jsapi::JS_NewGlobalObject;
 use mozjs::jsapi::OnNewGlobalHookOption;
@@ -8,9 +10,16 @@ use mozjs::rust::{JSEngine, Runtime, SIMPLE_GLOBAL_CLASS};
 
 use std::ptr;
 
-fn main() {
-    println!("Hello, world!");
-    evaluate_javascript();
+fn main() -> std::io::Result<()> {
+    HttpServer::new(
+        || App::new()
+            .service(web::resource("/").to(index)))
+    .bind("127.0.0.1:8081")?
+    .run()
+}
+
+fn index() -> impl Responder {
+    format!("hello world!")
 }
 
 fn evaluate_javascript() {
