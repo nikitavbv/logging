@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 mozjs = "0.10.1"
 actix-web = "1.0.9"
+postgres = "0.15.2"
