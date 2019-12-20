@@ -1,8 +1,11 @@
 #[macro_use] extern crate mozjs;
 
 use futures::IntoFuture;
+use std::ptr;
 
 use actix_web::{web, App, HttpServer, Responder, Error, HttpRequest};
+use tokio_postgres;
+use tokio_postgres::NoTls;
 
 use mozjs::jsapi::CompartmentOptions;
 use mozjs::jsapi::JS_NewGlobalObject;
@@ -10,9 +13,9 @@ use mozjs::jsapi::OnNewGlobalHookOption;
 use mozjs::jsval::UndefinedValue;
 use mozjs::rust::{JSEngine, Runtime, SIMPLE_GLOBAL_CLASS};
 
-use std::ptr;
-
 fn main() -> std::io::Result<()> {
+    let db = tokio_postgres::connect("host=localhost", NoTls);
+
     HttpServer::new(
         || App::new()
             .service(web::resource("/").to_async(index_async))
