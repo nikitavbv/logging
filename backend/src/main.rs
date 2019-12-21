@@ -1,5 +1,8 @@
 #[macro_use] extern crate mozjs;
 
+mod config;
+mod database;
+
 use futures::IntoFuture;
 use std::ptr;
 
@@ -14,7 +17,7 @@ use mozjs::jsval::UndefinedValue;
 use mozjs::rust::{JSEngine, Runtime, SIMPLE_GLOBAL_CLASS};
 
 fn main() -> std::io::Result<()> {
-    let db = tokio_postgres::connect("host=localhost", NoTls);
+    let db: i32 = tokio_postgres::connect("host=localhost", NoTls);
 
     HttpServer::new(
         || App::new()
