@@ -2,22 +2,18 @@
 
 mod config;
 mod database;
+mod js;
 
 use futures::IntoFuture;
-use std::ptr;
 
 use actix_web::{web, App, HttpServer, Responder, Error, HttpRequest};
-use tokio_postgres;
-use tokio_postgres::NoTls;
+use tokio::runtime::Runtime;
 
-use mozjs::jsapi::CompartmentOptions;
-use mozjs::jsapi::JS_NewGlobalObject;
-use mozjs::jsapi::OnNewGlobalHookOption;
-use mozjs::jsval::UndefinedValue;
-use mozjs::rust::{JSEngine, Runtime, SIMPLE_GLOBAL_CLASS};
+use crate::database::connect;
 
 fn main() -> std::io::Result<()> {
-    let db: i32 = tokio_postgres::connect("host=localhost", NoTls);
+    let mut runtime = Runtime::new().unwrap();
+    let db = runtime.block_on(connect());
 
     HttpServer::new(
         || App::new()
@@ -29,25 +25,4 @@ fn main() -> std::io::Result<()> {
 
 fn index_async(req: HttpRequest) -> impl IntoFuture<Item = String, Error = Error> {
     Ok(format!("hello world!"))
-}
-
-fn evaluate_javascript() {
-    // docs: https://doc.servo.org/mozjs/jsapi/union.Value.html
-    // source code and tests: https://github.com/servo/rust-mozjs/tree/v0.10.1
-    let engine = JSEngine::init().unwrap();
-    let rt = Runtime::new(engine);
-    let cx = rt.cx();
-
-    // No way to avoid this unsafe...
-    unsafe {
-        rooted!(in(cx) let global =
-            JS_NewGlobalObject(cx, &SIMPLE_GLOBAL_CLASS, ptr::null_mut(),
-                               OnNewGlobalHookOption::FireOnNewGlobalHook,
-                               &CompartmentOptions::default())
-        );
-        rooted!(in(cx) let mut rval = UndefinedValue());
-        rt.evaluate_script(global.handle(), "1 + Math.pow(3, 2)",
-                                   "test", 1, rval.handle_mut());
-        println!("{}", rval.to_int32());
-    }
 }
