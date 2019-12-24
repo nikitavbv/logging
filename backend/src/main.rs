@@ -9,7 +9,7 @@ use futures::IntoFuture;
 use actix_web::{web, App, HttpServer, Responder, Error, HttpRequest};
 use tokio::runtime::Runtime;
 
-use crate::database::connect;
+use crate::database::database::connect;
 
 fn main() -> std::io::Result<()> {
     let mut runtime = Runtime::new().unwrap();
