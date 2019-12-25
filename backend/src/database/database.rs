@@ -1,5 +1,3 @@
-use std::future::Future;
-
 use tokio_postgres;
 use tokio_postgres::{Client, NoTls};
 
