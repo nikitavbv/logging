@@ -11,6 +11,8 @@ impl actix::Actor for Database {
     type Context = actix::Context<Self>;
 }
 
-pub fn connect(connection_string: &str) -> actix::addr<Database> {
-    let db = connect();
+pub async fn connect(connection_string: &str) -> actix::addr<Database> {
+    Database {
+        client: connect(connection_string).await(),
+    }.start()
 }
