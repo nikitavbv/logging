@@ -1,18 +1,20 @@
 use actix;
 use tokio_postgres::Client;
 
-use crate::database::database::connect;
+use actix::prelude::*;
+
+use crate::database::database;
 
 pub struct Database {
     client: Option<Client>,
 }
 
-impl actix::Actor for Database {
+impl Actor for Database {
     type Context = actix::Context<Self>;
 }
 
-pub async fn connect(connection_string: &str) -> actix::addr<Database> {
+pub async fn connect() -> actix::Addr<Database> {
     Database {
-        client: connect(connection_string).await(),
+        client: Some(database::connect().await),
     }.start()
 }
