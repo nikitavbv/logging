@@ -1,4 +1,4 @@
-#[macro_use] extern crate mozjs;
+extern crate deno;
 
 mod config;
 mod database;
@@ -13,8 +13,11 @@ use tokio::runtime::Runtime;
 
 use crate::database::actor::connect;
 use crate::state::AppState;
+use crate::js::evaluate_javascript;
 
 fn main() -> std::io::Result<()> {
+    evaluate_javascript();
+
     let host = "127.0.0.1";
     let port = 8081;
     let bind_address = format!("{}:{}", host, port);
