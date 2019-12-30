@@ -11,7 +11,7 @@ use actix::System;
 use actix_web::{web, App, HttpServer, Error, HttpRequest};
 use tokio::runtime::Runtime;
 
-use crate::database::actor::connect;
+use crate::database::database::connect;
 use crate::state::AppState;
 use crate::js::evaluate_javascript;
 
@@ -29,7 +29,7 @@ fn main() -> std::io::Result<()> {
 
     HttpServer::new(
         move || App::new()
-            .data(AppState { database: database.clone() })
+            .data(database)
             .service(web::resource("/").to_async(index_async))
     )
     .bind(bind_address.clone())?
