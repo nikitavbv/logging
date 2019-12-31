@@ -24,8 +24,6 @@ fn main() -> std::io::Result<()> {
     let mut runtime = Runtime::new().unwrap();
     let database = runtime.block_on(connect()).unwrap();
 
-    let sys = System::new("logging");
-
     HttpServer::new(
         move || App::new()
             .data(database.clone())
@@ -35,7 +33,6 @@ fn main() -> std::io::Result<()> {
     .start();
 
     println!("Started server on {}", bind_address);
-    let _ = sys.run();
     Ok(())
 }
 
