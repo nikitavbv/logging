@@ -12,7 +12,6 @@ use actix_web::{web, App, HttpServer, Error, HttpRequest};
 use tokio::runtime::Runtime;
 
 use crate::database::database::connect;
-use crate::state::AppState;
 use crate::js::evaluate_javascript;
 
 fn main() -> std::io::Result<()> {
@@ -23,13 +22,13 @@ fn main() -> std::io::Result<()> {
     let bind_address = format!("{}:{}", host, port);
 
     let mut runtime = Runtime::new().unwrap();
-    let database = runtime.block_on(connect());
+    let database = runtime.block_on(connect()).unwrap();
 
     let sys = System::new("logging");
 
     HttpServer::new(
         move || App::new()
-            .data(database)
+            .data(database.clone())
             .service(web::resource("/").to_async(index_async))
     )
     .bind(bind_address.clone())?

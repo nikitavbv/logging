@@ -1,5 +1,9 @@
 use sqlx::PgPool;
 
+use sqlx::pool::Pool;
+use sqlx::postgres::Postgres;
+use sqlx::error::Error as SQLXError;
+
 use crate::config::{
     get_postgres_host,
     get_postgres_port,
@@ -20,6 +24,6 @@ pub fn get_connection_string() -> String {
     )
 }
 
-pub async fn connect() {
-    PgPool::new(&get_connection_string()).await;
+pub async fn connect() -> Result<Pool<Postgres>, SQLXError> {
+    PgPool::new(&get_connection_string()).await
 }
