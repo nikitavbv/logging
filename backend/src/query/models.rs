@@ -6,4 +6,5 @@ pub struct Query {
     pub id: Uuid,
     pub name: String,
     pub code: String,
+    pub starred: bool,
 }

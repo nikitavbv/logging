@@ -43,6 +43,7 @@ async fn get_user_queries(database: &mut Database, identity: Identity) -> Vec<Qu
             id: v.query_id,
             name: v.name,
             code: v.code,
+            starred: v.starred,
         })))
         .collect::<Vec<Query>>()
         .await

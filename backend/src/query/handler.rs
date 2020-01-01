@@ -29,12 +29,20 @@ pub async fn update_query(
     identity: Identity,
     query: Json<Query>
 ) -> Result<HttpResponse, Error> {
-    sqlx::query!(
-        "update queries set name = $1, code = $2 where id = $3 returning id",
-        query.name,
-        query.code,
-        query.id
-    ).fetch_one(&mut database.get_ref().clone()).await;
+    join(
+        sqlx::query!(
+            "update user_queries set starred = $1 where query_id = $2 and user_id = $3 returning query_id",
+            query.starred,
+            query.id,
+            identity.user_email,
+        ).fetch_one(&mut database.get_ref().clone()),
+        sqlx::query!(
+            "update queries set name = $1, code = $2 where id = $3 returning id",
+            query.name,
+            query.code,
+            query.id
+        ).fetch_one(&mut database.get_ref().clone())
+    ).await;
 
     Ok(HttpResponse::Ok().body(json!({
         "status": "ok"
