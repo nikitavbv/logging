@@ -2,6 +2,8 @@ use uuid::Uuid;
 use serde_derive::Serialize;
 
 #[derive(Serialize)]
-pub struct UserQuery {
-    pub query_id: Uuid,
+pub struct Query {
+    pub id: Uuid,
+    pub name: String,
+    pub code: String,
 }

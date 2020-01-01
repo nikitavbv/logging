@@ -8,19 +8,19 @@ use serde_derive::Serialize;
 
 use crate::auth::identity::Identity;
 use crate::database::database::Database;
-use crate::query::models::UserQuery;
+use crate::query::models::Query;
 use crate::logger::models::UserLogger;
 
 #[derive(Serialize)]
 struct InitResponse {
-    user_queries: Vec<UserQuery>,
+    queries: Vec<Query>,
     user_loggers: Vec<UserLogger>,
 }
 
 #[get("/init/")]
 pub async fn init_index(database: Data<Database>, identity: Identity) -> Result<HttpResponse, Error> {
     let (
-        user_queries,
+        queries,
         user_loggers
     ) = join(
         get_user_queries(&mut database.as_ref().clone(), identity.clone()),
@@ -28,18 +28,20 @@ pub async fn init_index(database: Data<Database>, identity: Identity) -> Result<
     ).await;
 
     Ok(HttpResponse::Ok().json(InitResponse {
-        user_queries,
+        queries,
         user_loggers
     }))
 }
 
-async fn get_user_queries(database: &mut Database, identity: Identity) -> Vec<UserQuery> {
-    sqlx::query!("select * from user_queries where user_id = $1", identity.user_email)
+async fn get_user_queries(database: &mut Database, identity: Identity) -> Vec<Query> {
+    sqlx::query!("select * from user_queries inner join queries on queries.id = user_queries.query_id where user_id = $1", identity.user_email)
         .fetch(database)
-        .filter_map(|res| ready(res.ok().map(|v| UserQuery {
-            query_id: v.query_id,
+        .filter_map(|res| ready(res.ok().map(|v| Query {
+            id: v.query_id,
+            name: v.name,
+            code: v.code,
         })))
-        .collect::<Vec<UserQuery>>()
+        .collect::<Vec<Query>>()
         .await
 }
 
