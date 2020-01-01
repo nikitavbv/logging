@@ -9,19 +9,19 @@ use serde_derive::Serialize;
 use crate::auth::identity::Identity;
 use crate::database::database::Database;
 use crate::query::models::Query;
-use crate::logger::models::UserLogger;
+use crate::logger::models::Logger;
 
 #[derive(Serialize)]
 struct InitResponse {
     queries: Vec<Query>,
-    user_loggers: Vec<UserLogger>,
+    loggers: Vec<Logger>,
 }
 
 #[get("/init/")]
 pub async fn init_index(database: Data<Database>, identity: Identity) -> Result<HttpResponse, Error> {
     let (
         queries,
-        user_loggers
+        loggers
     ) = join(
         get_user_queries(&mut database.as_ref().clone(), identity.clone()),
         get_user_loggers(&mut database.as_ref().clone(), identity.clone())
@@ -29,12 +29,15 @@ pub async fn init_index(database: Data<Database>, identity: Identity) -> Result<
 
     Ok(HttpResponse::Ok().json(InitResponse {
         queries,
-        user_loggers
+        loggers
     }))
 }
 
 async fn get_user_queries(database: &mut Database, identity: Identity) -> Vec<Query> {
-    sqlx::query!("select * from user_queries inner join queries on queries.id = user_queries.query_id where user_id = $1", identity.user_email)
+    sqlx::query!(
+        "select * from user_queries inner join queries on queries.id = user_queries.query_id where user_id = $1",
+        identity.user_email
+    )
         .fetch(database)
         .filter_map(|res| ready(res.ok().map(|v| Query {
             id: v.query_id,
@@ -45,12 +48,17 @@ async fn get_user_queries(database: &mut Database, identity: Identity) -> Vec<Qu
         .await
 }
 
-async fn get_user_loggers(database: &mut Database, identity: Identity) -> Vec<UserLogger> {
-    sqlx::query!("select * from logger_access where \"user\" = $1", identity.user_email)
+async fn get_user_loggers(database: &mut Database, identity: Identity) -> Vec<Logger> {
+    sqlx::query!(
+        "select * from logger_access inner join loggers on loggers.id = logger_access.logger where \"user\" = $1",
+        identity.user_email
+    )
         .fetch(database)
-        .filter_map(|res| ready(res.ok().map(|v| UserLogger {
-            logger_id: v.logger,
+        .filter_map(|res| ready(res.ok().map(|v| Logger {
+            id: v.logger,
+            name: v.name,
+            api_key: v.api_key
         })))
-        .collect::<Vec<UserLogger>>()
+        .collect::<Vec<Logger>>()
         .await
 }
