@@ -20,7 +20,7 @@ use crate::database::database::connect;
 use crate::auth::handler::auth_index;
 use crate::init::init_index;
 use crate::query::handler::{save_query, update_query, delete_query};
-use crate::logger::handler::{save_logger};
+use crate::logger::handler::{save_logger, delete_logger};
 
 const HOST: &str = "127.0.0.1";
 const PORT: u16 = 8081;
@@ -42,6 +42,7 @@ async fn main() -> std::io::Result<()> {
         )
         .service(scope("logger")
             .service(save_logger)
+            .service(delete_logger)
         )
     )
         .bind(bind_address())?
