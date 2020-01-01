@@ -19,7 +19,7 @@ use actix_web::{App, HttpServer, web::scope};
 use crate::database::database::connect;
 use crate::auth::handler::auth_index;
 use crate::init::init_index;
-use crate::query::handler::save_query;
+use crate::query::handler::{save_query, update_query};
 
 const HOST: &str = "127.0.0.1";
 const PORT: u16 = 8081;
@@ -36,6 +36,7 @@ async fn main() -> std::io::Result<()> {
         .service(init_index)
         .service(scope("query")
             .service(save_query)
+            .service(update_query)
         )
     )
         .bind(bind_address())?

@@ -22,3 +22,21 @@ pub async fn save_query(
         "status": "ok"
     })))
 }
+
+#[post("/update")]
+pub async fn update_query(
+    database: Data<Database>,
+    identity: Identity,
+    query: Json<Query>
+) -> Result<HttpResponse, Error> {
+    sqlx::query!(
+        "update queries set name = $1, code = $2 where id = $3 returning id",
+        query.name,
+        query.code,
+        query.id
+    ).fetch_one(&mut database.get_ref().clone()).await;
+
+    Ok(HttpResponse::Ok().body(json!({
+        "status": "ok"
+    })))
+}
