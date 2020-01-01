@@ -1,9 +1,10 @@
-use actix_web::{get, HttpResponse, Error, web::Json, ResponseError};
-use serde_derive::{Deserialize, Serialize};
-use custom_error::custom_error;
-use frank_jwt::{Algorithm, encode};
+use actix_web::{HttpResponse, Error, post, web::Json};
+use serde_derive::{Serialize, Deserialize};
+use frank_jwt::{encode, Algorithm};
 
 use crate::config::get_app_secret;
+use super::identity::Identity;
+use super::errors::{GoogleAuthError, JwtTokenError};
 
 #[derive(Deserialize)]
 struct AuthRequest {
@@ -22,21 +23,7 @@ struct AuthResponse {
     token: String
 }
 
-custom_error!{GoogleAuthError
-    NetworkError{source: reqwest::Error} = "Failed to get response from google api: {source}"
-}
-
-custom_error!{JwtTokenError
-    TokenGenerationError{source: frank_jwt::error::Error} = "Failed to generate jwt token: {source}"
-}
-
-impl ResponseError for GoogleAuthError {
-}
-
-impl ResponseError for JwtTokenError {
-}
-
-#[get("/auth/")]
+#[post("/auth/")]
 pub async fn auth_index(req: Json<AuthRequest>) -> Result<HttpResponse, Error> {
     let account_info = get_account_info_by_token(&req.access_token).await?;
     let token = generate_jwt_token(account_info)?;
@@ -50,16 +37,16 @@ async fn get_account_info_by_token(access_token: &str) -> Result<GoogleAuthResul
         .await?
         .json()
         .await
-        .map_err(|err| GoogleAuthError::from(err))
+        .map_err(GoogleAuthError::from)
 }
 
 fn generate_jwt_token(account: GoogleAuthResult) -> Result<String, JwtTokenError> {
-    let mut payload = json!({
-        "user_email": account.email
+    let mut payload = json!(Identity {
+        user_email: account.email
     });
 
     let mut header = json!({});
 
-    encode(header, &get_app_secret(), &payload, Algorithm::RS256)
-        .map_err(|err| JwtTokenError::from(err))
+    encode(header, &get_app_secret(), &payload, Algorithm::HS256)
+        .map_err(JwtTokenError::from)
 }

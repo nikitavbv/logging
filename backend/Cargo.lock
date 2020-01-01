@@ -408,7 +408,7 @@ dependencies = [
  "custom_error 1.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "deno 0.23.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "frank_jwt 3.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.10.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
