@@ -1,4 +1,7 @@
 extern crate deno;
+extern crate custom_error;
+extern crate frank_jwt;
+#[macro_use] extern crate serde_json;
 
 mod auth;
 mod config;
