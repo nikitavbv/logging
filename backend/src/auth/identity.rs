@@ -10,7 +10,7 @@ use serde_derive::{Serialize, Deserialize};
 
 use crate::config::get_app_secret;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Identity {
     pub user_email: String,
 }

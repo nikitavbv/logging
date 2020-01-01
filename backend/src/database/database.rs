@@ -12,6 +12,8 @@ use crate::config::{
     get_postgres_db
 };
 
+pub type Database = Pool<Postgres>;
+
 pub fn get_connection_string() -> String {
     format!(
         "postgres://{}:{}@{}:{}/{}",
@@ -23,6 +25,6 @@ pub fn get_connection_string() -> String {
     )
 }
 
-pub async fn connect() -> Result<Pool<Postgres>, SQLXError> {
+pub async fn connect() -> Result<Database, SQLXError> {
     PgPool::new(&get_connection_string()).await
 }

@@ -7,7 +7,9 @@ mod auth;
 mod config;
 mod init;
 mod database;
+mod logger;
 mod js;
+mod query;
 mod state;
 
 use std::io::{Error, ErrorKind};
