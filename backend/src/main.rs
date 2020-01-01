@@ -19,7 +19,7 @@ use actix_web::{App, HttpServer, web::scope};
 use crate::database::database::connect;
 use crate::auth::handler::auth_index;
 use crate::init::init_index;
-use crate::query::handler::{save_query, update_query};
+use crate::query::handler::{save_query, update_query, delete_query};
 use crate::logger::handler::{save_logger};
 
 const HOST: &str = "127.0.0.1";
@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
         .service(scope("query")
             .service(save_query)
             .service(update_query)
+            .service(delete_query)
         )
         .service(scope("logger")
             .service(save_logger)

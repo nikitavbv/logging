@@ -48,3 +48,20 @@ pub async fn update_query(
         "status": "ok"
     })))
 }
+
+#[post("/delete")]
+pub async fn delete_query(
+    database: Data<Database>,
+    identity: Identity,
+    query: Json<Query>
+) -> Result<HttpResponse, Error> {
+    sqlx::query!(
+        "delete from user_queries where query_id = $1 and user_id = $2 returning query_id",
+        query.id,
+        identity.user_email
+    ).fetch_one(&mut database.as_ref().clone()).await;
+
+    Ok(HttpResponse::Ok().body(json!({
+        "status": "ok"
+    })))
+}
