@@ -1,7 +1,7 @@
 use uuid::Uuid;
-use serde_derive::Serialize;
+use serde_derive::{Serialize, Deserialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Query {
     pub id: Uuid,
     pub name: String,
