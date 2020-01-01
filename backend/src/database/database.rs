@@ -12,7 +12,6 @@ use crate::config::{
     get_postgres_db
 };
 
-
 pub fn get_connection_string() -> String {
     format!(
         "postgres://{}:{}@{}:{}/{}",

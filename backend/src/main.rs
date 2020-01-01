@@ -1,41 +1,36 @@
 extern crate deno;
 
+mod auth;
 mod config;
 mod database;
 mod js;
 mod state;
 
-use futures::IntoFuture;
+use std::io::{Error, ErrorKind};
 
-use actix::System;
-use actix_web::{web, App, HttpServer, Error, HttpRequest};
-use tokio::runtime::Runtime;
+use actix_web::{App, HttpServer};
 
 use crate::database::database::connect;
-use crate::js::evaluate_javascript;
+use crate::auth::auth_index;
 
-fn main() -> std::io::Result<()> {
-    evaluate_javascript();
+const HOST: &str = "127.0.0.1";
+const PORT: u16 = 8081;
 
-    let host = "127.0.0.1";
-    let port = 8081;
-    let bind_address = format!("{}:{}", host, port);
-
-    let mut runtime = Runtime::new().unwrap();
-    let database = runtime.block_on(connect()).unwrap();
-
-    HttpServer::new(
-        move || App::new()
-            .data(database.clone())
-            .service(web::resource("/").to_async(index_async))
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    let database = connect()
+        .await
+        .map_err(|err| Error::new(ErrorKind::Other, err))?;
+ 
+    HttpServer::new(move || App::new()
+        .data(database.clone())
+        .service(auth_index)
     )
-    .bind(bind_address.clone())?
-    .start();
-
-    println!("Started server on {}", bind_address);
-    Ok(())
+        .bind(bind_address())?
+        .run()
+        .await
 }
 
-fn index_async(_req: HttpRequest) -> impl IntoFuture<Item = String, Error = Error> {
-    Ok(format!("hello world!"))
+fn bind_address() -> String {
+    format!("{}:{}", HOST, PORT)
 }

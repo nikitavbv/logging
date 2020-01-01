@@ -9,8 +9,8 @@ edition = "2018"
 [dependencies]
 deno = "0.23.0"
 actix = "0.9.0"
-actix-web = "1.0.9"
+actix-web = "2.0.0"
+actix-rt = "1.0.0"
 sqlx = { version = "0.1.1", features = [ "postgres" ] }
 futures = "0.1.25"
 async-std = { version = "1.4.0", features = [ "attributes" ] }
-tokio = "0.2.6"
