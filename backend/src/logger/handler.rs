@@ -1,4 +1,5 @@
-use actix_web::{web::Data, web::Path, HttpResponse, Error, post, delete};
+use actix_web::{HttpResponse, Error, post, delete};
+use actix_web::web::{Data, Path, Json};
 use futures::future::join;
 use uuid::Uuid;
 use serde_derive::Deserialize;
@@ -53,6 +54,24 @@ pub async fn delete_logger(
             logger_id.logger_id
         ).fetch_one(&mut database.as_ref().clone())
     ).await;
+
+    Ok(HttpResponse::Ok().body(json!({
+        "status": "ok"
+    })))
+}
+
+#[post("/{logger_id}")]
+pub async fn update_logger(
+    database: Data<Database>,
+    identity: Identity,
+    logger_id: Path<LoggerIDPath>,
+    logger: Json<Logger>
+) -> Result<HttpResponse, Error> {
+    sqlx::query!(
+        "update loggers set name = $1 where id = $2 returning id",
+        logger.name,
+        logger_id.logger_id
+    ).fetch_one(&mut database.as_ref()).await;
 
     Ok(HttpResponse::Ok().body(json!({
         "status": "ok"
