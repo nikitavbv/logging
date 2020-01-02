@@ -8,6 +8,7 @@ mod config;
 mod init;
 mod database;
 mod logger;
+mod jobs;
 mod js;
 mod query;
 mod state;
@@ -15,12 +16,14 @@ mod state;
 use std::io::{Error, ErrorKind};
 
 use actix_web::{App, HttpServer, web::scope};
+use actix::Actor;
 
 use crate::database::database::connect;
 use crate::auth::handler::auth_index;
 use crate::init::init_index;
 use crate::query::handler::{save_query, update_query, delete_query};
 use crate::logger::handler::{save_logger, update_logger, delete_logger};
+use crate::jobs::retention::RetentionJob;
 
 const HOST: &str = "127.0.0.1";
 const PORT: u16 = 8081;
@@ -30,7 +33,11 @@ async fn main() -> std::io::Result<()> {
     let database = connect()
         .await
         .map_err(|err| Error::new(ErrorKind::Other, err))?;
- 
+
+    RetentionJob {
+        database: database.clone(),
+    }.start();
+
     HttpServer::new(move || App::new()
         .data(database.clone())
         .service(auth_index)
