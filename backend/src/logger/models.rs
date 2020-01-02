@@ -7,3 +7,8 @@ pub struct Logger {
     pub name: String,
     pub api_key: String,
 }
+
+#[derive(Deserialize)]
+pub struct LoggerIDPath {
+    pub logger_id: Uuid,
+}

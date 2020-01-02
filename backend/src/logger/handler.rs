@@ -6,12 +6,7 @@ use serde_derive::Deserialize;
 
 use crate::auth::identity::Identity;
 use crate::database::database::Database;
-use crate::logger::models::Logger;
-
-#[derive(Deserialize)]
-struct LoggerIDPath {
-    logger_id: Uuid,
-}
+use crate::logger::models::{Logger, LoggerIDPath};
 
 #[post("/")]
 pub async fn save_logger(
