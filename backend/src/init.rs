@@ -2,7 +2,6 @@ use std::iter::Iterator;
 
 use actix_web::{get, HttpResponse, Error, web::Data};
 use futures::prelude::*;
-use futures::stream::Stream;
 use futures::future::{ready, join};
 use serde_derive::Serialize;
 
