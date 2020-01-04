@@ -1,8 +1,6 @@
 use actix_web::{HttpResponse, Error, post, delete};
 use actix_web::web::{Data, Path, Json};
 use futures::future::join;
-use uuid::Uuid;
-use serde_derive::Deserialize;
 
 use crate::auth::identity::Identity;
 use crate::database::database::Database;
