@@ -1,5 +1,6 @@
 use actix_web::{get, HttpResponse, Error, web::Data};
 use futures::future::{ready, join};
+use futures::prelude::*;
 use serde_derive::Serialize;
 
 use crate::auth::identity::Identity;

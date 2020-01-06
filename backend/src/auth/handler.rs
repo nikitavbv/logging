@@ -33,7 +33,11 @@ pub async fn auth_index(req: Json<AuthRequest>) -> Result<HttpResponse, Error> {
 }
 
 async fn get_account_info_by_token(access_token: &str) -> Result<GoogleAuthResult, GoogleAuthError> {
-    reqwest::get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
+    let client = reqwest::Client::new();
+
+    client.get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
+        .bearer_auth(access_token)
+        .send()
         .await?
         .json()
         .await
