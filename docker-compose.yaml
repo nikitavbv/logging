@@ -9,3 +9,5 @@ services:
       POSTGRES_PASSWORD: logging_dev_password
     ports:
       - 5432:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql
