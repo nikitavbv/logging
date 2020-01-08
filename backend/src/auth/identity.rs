@@ -47,7 +47,7 @@ impl FromRequest for Identity {
 }
 
 fn decode_token(token: &str) -> Result<Identity, IdentityError> {
-    let (header, payload) = decode(
+    let (_, payload) = decode(
         token,
         &get_app_secret(),
         Algorithm::HS256,
