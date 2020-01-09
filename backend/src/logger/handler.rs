@@ -9,7 +9,7 @@ use crate::logger::models::{Logger, LoggerIDPath};
 #[post("/")]
 pub async fn save_logger(
     database: Data<Database>,
-    identity: Identity,
+    _identity: Identity,
     logger: Data<Logger>
 ) -> Result<HttpResponse, Error> {
     join(
@@ -34,7 +34,7 @@ pub async fn save_logger(
 #[delete("/{logger_id}")]
 pub async fn delete_logger(
     database: Data<Database>,
-    identity: Identity,
+    _identity: Identity,
     logger_id: Path<LoggerIDPath>
 ) -> Result<HttpResponse, Error> {
     join(
@@ -56,7 +56,7 @@ pub async fn delete_logger(
 #[post("/{logger_id}")]
 pub async fn update_logger(
     database: Data<Database>,
-    identity: Identity,
+    _identity: Identity,
     logger_id: Path<LoggerIDPath>,
     logger: Json<Logger>
 ) -> Result<HttpResponse, Error> {
