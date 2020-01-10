@@ -9,7 +9,7 @@ use crate::logger::models::{Logger, LoggerIDPath};
 #[post("/")]
 pub async fn save_logger(
     database: Data<Database>,
-    _identity: Identity,
+    identity: Identity,
     logger: Data<Logger>
 ) -> Result<HttpResponse, Error> {
     join(
