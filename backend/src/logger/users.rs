@@ -14,7 +14,7 @@ struct ChangeUserAccessRequest {
 #[post("/user/add")]
 pub async fn add_logger_user(
     database: Data<Database>,
-    identity: Identity,
+    _identity: Identity,
     logger_id: Path<LoggerIDPath>,
     req: Json<ChangeUserAccessRequest>
 ) -> Result<HttpResponse, Error> {
@@ -32,7 +32,7 @@ pub async fn add_logger_user(
 #[post("/user/remove")]
 pub async fn remove_logger_user(
     database: Data<Database>,
-    identity: Identity,
+    _identity: Identity,
     logger_id: Path<LoggerIDPath>,
     req: Json<ChangeUserAccessRequest>
 ) -> Result<HttpResponse, Error> {
