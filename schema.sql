@@ -1,11 +1,12 @@
 create table log
 (
     logger       uuid         not null,
-    service_name varchar(255) not null,
-    hostname     varchar(255) not null,
+    service_name text not null,
+    hostname     text not null,
     timestamp    timestamp    not null,
     data         jsonb        not null,
-    tag          varchar(20)  not null
+    tag          text  not null,
+    delete_at timestamp not null
 );
 
 alter table log
@@ -14,7 +15,7 @@ alter table log
 create table logger_access
 (
     logger uuid        not null,
-    "user" varchar(64) not null
+    "user" text not null
 );
 
 alter table logger_access
@@ -24,8 +25,8 @@ alter table logger_access
 create table loggers
 (
     id      uuid         not null,
-    name    varchar(255) not null,
-    api_key varchar(255) not null
+    name    text not null,
+    api_key text not null
 );
 
 alter table loggers
@@ -38,7 +39,7 @@ create unique index loggers_id_uindex
 create table queries
 (
     id   uuid         not null,
-    name varchar(255) not null,
+    name text not null,
     code text         not null
 );
 
@@ -50,8 +51,9 @@ create unique index queries_id_uindex
 
 create table user_queries
 (
-    user_id  uuid not null,
-    query_id uuid not null
+    user_id  text not null,
+    query_id uuid not null,
+    starred boolean not null
 )
 
 alter table user_queries
