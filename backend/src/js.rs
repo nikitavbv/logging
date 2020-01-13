@@ -1,5 +1,9 @@
 use deno::*;
 
+use futures::future::Future;
+use futures::future::FutureExt;
+use futures::task::{Context, Poll};
+
 pub fn evaluate_javascript() {
     let source = "Deno.core.print(1 + Math.pow(3, 2) + '\\n');Deno.core.demo();";
     
@@ -21,7 +25,7 @@ fn demo_op(control: &[u8], zero_copy_buf: Option<PinnedBuf>) -> CoreOp {
     let result = 2;
 
     let buf32 = vec![promise_id, arg, result].into_boxed_slice();
-    let ptr = Box::into_raw(buf32) as *mut [u8; 3 * 4];
+    let ptr = Box::into_raw(buf32) as *mut [u8];
     let res = unsafe { Box::from_raw(ptr) };
 
     Op::Sync(res)
