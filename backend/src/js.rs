@@ -1,32 +1,37 @@
-use deno::*;
+use deno_core::*;
 
-use futures::future::Future;
+use futures::future::{Future, Ready};
 use futures::future::FutureExt;
 use futures::task::{Context, Poll};
+use futures::compat::Compat01As03;
+use std::pin::Pin;
+use std::ops::Deref;
+
+use crate::database::database::{Database, connect};
 
 pub fn evaluate_javascript() {
-    let source = "Deno.core.print(1 + Math.pow(3, 2) + '\\n');Deno.core.demo();";
+    let source = "Deno.core.print(1 + Math.pow(3, 2) + '\\n');";
     
     let startup_data = StartupData::Script(Script {
         source: include_str!("runtime.js"),
         filename: "runtime.js",
     });
 
-    let mut isolate = deno::Isolate::new(startup_data, false);
-    isolate.register_op("demo", demo_op);
+    let mut isolate = deno_core::Isolate::new(startup_data, false);
+    isolate.register_op("service", service_op);
     isolate.execute(&"demo.js", &source).unwrap();
 }
 
-fn demo_op(control: &[u8], zero_copy_buf: Option<PinnedBuf>) -> CoreOp {
-    println!("demo op is called");
+fn service_op(control: &[u8], _zero_copy: Option<PinnedBuf>) -> CoreOp {
+    /*let mut runtime = actix_rt::Runtime::new().unwrap();
+    let mut database = runtime.block_on(connect()).unwrap();*/
 
-    let promise_id = 0;
-    let arg = 1;
-    let result = 2;
+    println!("service op is called");
+    println!("control is {:?}", control);
 
-    let buf32 = vec![promise_id, arg, result].into_boxed_slice();
-    let ptr = Box::into_raw(buf32) as *mut [u8];
-    let res = unsafe { Box::from_raw(ptr) };
+    //let res = runtime.block_on(sqlx::query!("select * from log where service_name = $1", &[service_name]).fetch_one(&mut database.clone()));
+    //println!("database res is {:?}", res);
+    // Op::Sync(res.into_boxed_slice())
 
-    Op::Sync(res)
+    Op::Sync(vec![42 as u8, 92 as u8, 21 as u8].into_boxed_slice())
 }
